@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash([ -f .env ])",
+      "Bash([ -f .gitignore ])",
+      "Bash(sed -n '1100,1110p' index.html)",
+      "Bash(sed -n '1113,1123p' index.html)"
+    ]
+  }
+}
