@@ -8,6 +8,61 @@ const { MercadoPagoConfig, Preference, Payment } = require('mercadopago');
 const { pool, initDB } = require('./db');
 const { v4: uuidv4 } = require('uuid');
 const crypto = require('crypto');
+const { Resend } = require('resend');
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+const EMAIL_FROM = 'MAISON·BR <onboarding@resend.dev>';
+
+async function sendEmail(to, subject, html) {
+  if (!process.env.RESEND_API_KEY) return;
+  try {
+    await resend.emails.send({ from: EMAIL_FROM, to, subject, html });
+  } catch (err) {
+    console.error('Erro ao enviar e-mail:', err.message);
+  }
+}
+
+function emailOrderCreated(order) {
+  return sendEmail(order.customer_email, `Pedido ${order.order_number} recebido!`, `
+    <div style="font-family:sans-serif;max-width:560px;margin:0 auto;color:#1C1C1A">
+      <h2 style="color:#C4753A">Pedido recebido!</h2>
+      <p>Olá, <strong>${order.customer_name}</strong>!</p>
+      <p>Recebemos seu pedido <strong>${order.order_number}</strong> no valor de <strong>R$ ${Number(order.total).toFixed(2).replace('.', ',')}</strong>.</p>
+      <p>Aguardamos a confirmação do pagamento. Você receberá um novo e-mail assim que for aprovado.</p>
+      <hr style="border:none;border-top:1px solid #eee;margin:24px 0">
+      <p style="font-size:12px;color:#888">MAISON·BR — Moda consciente</p>
+    </div>
+  `);
+}
+
+function emailOrderConfirmed(order) {
+  return sendEmail(order.customer_email, `Pagamento confirmado — Pedido ${order.order_number}`, `
+    <div style="font-family:sans-serif;max-width:560px;margin:0 auto;color:#1C1C1A">
+      <h2 style="color:#C4753A">Pagamento confirmado!</h2>
+      <p>Olá, <strong>${order.customer_name}</strong>!</p>
+      <p>O pagamento do pedido <strong>${order.order_number}</strong> foi aprovado. Estamos preparando sua encomenda!</p>
+      <p>Você receberá um novo e-mail quando o pedido for despachado.</p>
+      <hr style="border:none;border-top:1px solid #eee;margin:24px 0">
+      <p style="font-size:12px;color:#888">MAISON·BR — Moda consciente</p>
+    </div>
+  `);
+}
+
+function emailOrderDispatched(order) {
+  const tracking = order.tracking_code
+    ? `<p>Código de rastreio: <strong>${order.tracking_code}</strong></p><p><a href="https://www.correios.com.br/rastreamento" style="color:#C4753A">Rastrear pelos Correios</a></p>`
+    : '';
+  return sendEmail(order.customer_email, `Pedido ${order.order_number} despachado!`, `
+    <div style="font-family:sans-serif;max-width:560px;margin:0 auto;color:#1C1C1A">
+      <h2 style="color:#C4753A">Pedido a caminho!</h2>
+      <p>Olá, <strong>${order.customer_name}</strong>!</p>
+      <p>Seu pedido <strong>${order.order_number}</strong> foi despachado.</p>
+      ${tracking}
+      <hr style="border:none;border-top:1px solid #eee;margin:24px 0">
+      <p style="font-size:12px;color:#888">MAISON·BR — Moda consciente</p>
+    </div>
+  `);
+}
 
 const app  = express();
 const PORT = process.env.PORT || 3001;
@@ -245,6 +300,8 @@ app.post('/api/orders', async (req, res) => {
 
     await client.query('COMMIT');
 
+    emailOrderCreated(order);
+
     res.status(201).json({
       order_number,
       order_id: order.id,
@@ -312,6 +369,11 @@ app.patch('/api/admin/orders/:orderNumber/status', requireAdmin, async (req, res
 
     if (tracking_code) {
       await pool.query(`UPDATE orders SET tracking_code = $1 WHERE id = $2`, [tracking_code, orderId]);
+    }
+
+    if (status === 'dispatched') {
+      const { rows: orderRows } = await pool.query(`SELECT * FROM orders WHERE id = $1`, [orderId]);
+      if (orderRows.length) emailOrderDispatched(orderRows[0]);
     }
 
     res.json({ ok: true });
@@ -394,6 +456,9 @@ app.post('/webhook/mercadopago', async (req, res) => {
         orderStatus,
         `Pagamento ${payment.status} via Mercado Pago (ID: ${payment.id})`
       );
+      if (orderStatus === 'confirmed') {
+        emailOrderConfirmed(order);
+      }
     }
 
     res.sendStatus(200);
