@@ -1081,14 +1081,26 @@ function checkReturnFromMP() {
   history.replaceState({ screen: 'status' }, '', '#status');
   showScreen('status');
   document.getElementById('order-search-input').value = orderNum;
-  if (status === 'success') {
-    showToast('Pagamento realizado com sucesso!');
-    setTimeout(() => searchOrder(), 500);
-  } else if (status === 'failure') {
+  if (status === 'failure') {
     showToast('Pagamento não aprovado. Tente novamente.');
     setTimeout(() => searchOrder(), 500);
   } else {
+    if (status === 'success') showToast('Pagamento realizado! Aguardando confirmação...');
     setTimeout(() => searchOrder(), 500);
+    // Polling: verifica o status a cada 4s por até 40s
+    // aguarda o webhook do MP processar e atualizar o banco
+    let attempts = 0;
+    const poll = setInterval(async () => {
+      attempts++;
+      try {
+        const order = await apiFetch('/api/orders/' + orderNum);
+        if (order.payment_status === 'approved' || attempts >= 10) {
+          clearInterval(poll);
+          if (order.payment_status === 'approved') showToast('Pagamento confirmado!');
+          renderOrderStatus(order);
+        }
+      } catch { clearInterval(poll); }
+    }, 4000);
   }
 }
 
