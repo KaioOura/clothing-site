@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MAISON·BR</title>
+<title id="page-title"></title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 /* ─── RESET & VARIÁVEIS ────────────────────────────────── */
@@ -342,7 +342,7 @@ footer{background:var(--deep);padding:60px 40px 32px;}
 
 <!-- ─── NAVEGAÇÃO ──────────────────────────────────────────────────── -->
 <nav>
-  <span class="nav-logo" onclick="goHome()">PATY·AKEMY</span>
+  <span class="nav-logo" onclick="goHome()"><span class="brand-name"></span></span>
   <ul class="nav-links">
     <li><a onclick="navigate('home')">Coleções</a></li>
     <li><a onclick="navigateSection('novidades')">Novidades</a></li>
@@ -399,7 +399,7 @@ footer{background:var(--deep);padding:60px 40px 32px;}
   <footer>
     <div class="footer-top">
       <div>
-        <span class="footer-logo" onclick="goHome()">MAISON·BR</span>
+        <span class="footer-logo" onclick="goHome()"><span class="brand-name"></span></span>
         <p class="footer-brand-text">Moda consciente e elegante, feita para durar além das tendências.</p>
       </div>
       <div class="footer-col"><h4>Comprar</h4><ul>
@@ -424,7 +424,7 @@ footer{background:var(--deep);padding:60px 40px 32px;}
       <p>Vendas realizadas por pessoa física. Para dúvidas: <a onclick="window.open('https://wa.me/5511999999999','_blank')" style="color:var(--accent-light);cursor:pointer">WhatsApp</a></p>
     </div>
     <div class="footer-bottom">
-      <p>© 2025 MAISON·BR — Todos os direitos reservados</p>
+      <p>© 2025 <span class="brand-name"></span> — Todos os direitos reservados</p>
       <div class="footer-social">
         <a onclick="window.open('https://instagram.com','_blank')">Instagram</a>
         <a onclick="window.open('https://wa.me/5511999999999','_blank')">WhatsApp</a>
@@ -464,7 +464,7 @@ footer{background:var(--deep);padding:60px 40px 32px;}
   </div>
   <footer>
     <div class="footer-bottom" style="padding:24px 40px;">
-      <p>© 2025 MAISON·BR</p>
+      <p>© 2025 <span class="brand-name"></span></p>
       <div class="footer-social"><a onclick="goHome()" style="cursor:pointer">← Voltar à loja</a></div>
     </div>
   </footer>
@@ -475,7 +475,7 @@ footer{background:var(--deep);padding:60px 40px 32px;}
   <div class="info-page">
     <div class="breadcrumb"><span onclick="goHome()">Início</span><span class="sep">/</span><span style="color:var(--charcoal)">Nossa história</span></div>
     <h1>Nossa <em>história</em></h1>
-    <p>A MAISON·BR nasceu em 2020 de um desejo simples: criar roupas que durem mais do que uma estação. Fundada por designers brasileiros apaixonados por moda atemporal, a marca surgiu como resposta à cultura do descarte.</p>
+    <p>A <span class="brand-name"></span> nasceu em 2020 de um desejo simples: criar roupas que durem mais do que uma estação. Fundada por designers brasileiros apaixonados por moda atemporal, a marca surgiu como resposta à cultura do descarte.</p>
     <p>Cada coleção é desenvolvida com atenção às matérias-primas, priorizando tecidos naturais, orgânicos e produzidos de forma ética. Trabalhamos com pequenas confecções parceiras em São Paulo e no Nordeste do Brasil.</p>
     <div class="info-values">
       <div class="info-val"><div class="info-val-icon">✦</div><div class="info-val-title">Atemporalidade</div><div class="info-val-text">Peças que transcendem tendências e compõem um guarda-roupa duradouro.</div></div>
@@ -484,7 +484,7 @@ footer{background:var(--deep);padding:60px 40px 32px;}
     </div>
     <button class="btn-prim" onclick="goHome()" style="margin-top:32px">Explorar a coleção</button>
   </div>
-  <footer><div class="footer-bottom" style="padding:24px 40px;"><p>© 2025 MAISON·BR</p></div></footer>
+  <footer><div class="footer-bottom" style="padding:24px 40px;"><p>© 2025 <span class="brand-name"></span></p></div></footer>
 </div>
 
 <!-- ─── SUSTENTABILIDADE ───────────────────────────────────────────── -->
@@ -492,7 +492,7 @@ footer{background:var(--deep);padding:60px 40px 32px;}
   <div class="info-page">
     <div class="breadcrumb"><span onclick="goHome()">Início</span><span class="sep">/</span><span style="color:var(--charcoal)">Sustentabilidade</span></div>
     <h1>Moda que <em>respeita</em></h1>
-    <p>A sustentabilidade não é um diferencial na MAISON·BR — é a base de tudo. Desde a escolha dos tecidos até a embalagem de entrega, cada decisão considera o impacto ambiental e social.</p>
+    <p>A sustentabilidade não é um diferencial na <span class="brand-name"></span> — é a base de tudo. Desde a escolha dos tecidos até a embalagem de entrega, cada decisão considera o impacto ambiental e social.</p>
     <div class="info-values">
       <div class="info-val"><div class="info-val-icon">🌿</div><div class="info-val-title">Algodão orgânico</div><div class="info-val-text">Certificado GOTS, sem agrotóxicos e com menor consumo de água.</div></div>
       <div class="info-val"><div class="info-val-icon">📦</div><div class="info-val-title">Embalagem eco</div><div class="info-val-text">Embalagens 100% recicláveis ou biodegradáveis, sem plástico.</div></div>
@@ -500,7 +500,7 @@ footer{background:var(--deep);padding:60px 40px 32px;}
     </div>
     <button class="btn-prim" onclick="goHome()" style="margin-top:32px">Conhecer a coleção</button>
   </div>
-  <footer><div class="footer-bottom" style="padding:24px 40px;"><p>© 2025 MAISON·BR</p></div></footer>
+  <footer><div class="footer-bottom" style="padding:24px 40px;"><p>© 2025 <span class="brand-name"></span></p></div></footer>
 </div>
 
 <!-- ─── SOBRE / FAQ ────────────────────────────────────────────────── -->
@@ -516,7 +516,7 @@ footer{background:var(--deep);padding:60px 40px 32px;}
     <p>Cada produto possui uma tabela de medidas na página do produto. Em caso de dúvida, suba um tamanho para peças oversized.</p>
     <button class="btn-prim" onclick="goHome()" style="margin-top:32px">Voltar à loja</button>
   </div>
-  <footer><div class="footer-bottom" style="padding:24px 40px;"><p>© 2025 MAISON·BR</p></div></footer>
+  <footer><div class="footer-bottom" style="padding:24px 40px;"><p>© 2025 <span class="brand-name"></span></p></div></footer>
 </div>
 
 <!-- ─── CHECKOUT ───────────────────────────────────────────────────── -->
@@ -601,7 +601,7 @@ footer{background:var(--deep);padding:60px 40px 32px;}
 
     <div id="order-status-content"></div>
   </div>
-  <footer><div class="footer-bottom" style="padding:24px 40px;"><p>© 2025 MAISON·BR</p><a onclick="goHome()" style="font-size:12px;color:rgba(253,250,247,.4);cursor:pointer;">← Voltar</a></div></footer>
+  <footer><div class="footer-bottom" style="padding:24px 40px;"><p>© 2025 <span class="brand-name"></span></p><a onclick="goHome()" style="font-size:12px;color:rgba(253,250,247,.4);cursor:pointer;">← Voltar</a></div></footer>
 </div>
 
 <!-- ─── CARRINHO ────────────────────────────────────────────────────── -->
@@ -631,7 +631,7 @@ footer{background:var(--deep);padding:60px 40px 32px;}
 <div class="admin-overlay" id="admin-overlay">
   <div class="admin-modal">
     <div class="admin-hdr">
-      <h2>Painel MAISON·BR</h2>
+      <h2>Painel <span class="brand-name"></span></h2>
       <button class="admin-close" onclick="closeAdmin()">✕</button>
     </div>
     <div class="admin-tabs">
@@ -654,6 +654,10 @@ footer{background:var(--deep);padding:60px 40px 32px;}
 
 <!-- ─── JAVASCRIPT ───────────────────────────────────────────────────── -->
 <script>
+// ════════════════════════════════════════════════════════════════
+// NOME DA MARCA — altere aqui para mudar em todo o site
+// ════════════════════════════════════════════════════════════════
+const BRAND_NAME = 'Off Clothing Bath';
 // ════════════════════════════════════════════════════════════════
 // CONFIGURAÇÃO — troque pela URL do seu backend no Railway
 // ════════════════════════════════════════════════════════════════
@@ -1331,6 +1335,11 @@ async function updateOrderStatus(orderNumber) {
 // ════════════════════════════════════════════════════════════════
 // INICIALIZAÇÃO
 // ════════════════════════════════════════════════════════════════
+
+// Aplica BRAND_NAME em todos os elementos da página
+document.getElementById('page-title').textContent = BRAND_NAME;
+document.querySelectorAll('.brand-name').forEach(el => el.textContent = BRAND_NAME);
+
 checkReturnFromMP();
 loadProducts();
 
