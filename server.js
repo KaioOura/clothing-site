@@ -401,7 +401,11 @@ app.post('/webhook/mercadopago', async (req, res) => {
     });
     const { ts, v1 } = sigParts;
     const rawStr  = Buffer.isBuffer(req.body) ? req.body.toString() : JSON.stringify(req.body);
-    const dataId  = JSON.parse(rawStr)?.data?.id;
+    const parsedBody = JSON.parse(rawStr);
+    const dataId  = parsedBody?.data?.id ?? req.query?.['data.id'];
+    if (!dataId || !ts || !xRequestId) {
+      return res.sendStatus(200); // ignora notificações sem dados suficientes para validar
+    }
     const manifest = `id:${dataId};request-id:${xRequestId};ts:${ts};`;
     const expected = crypto.createHmac('sha256', webhookSecret).update(manifest).digest('hex');
     console.log('Webhook debug — manifest:', manifest);
