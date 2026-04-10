@@ -701,7 +701,8 @@ function navigate(screenId, pushState = true) {
   showScreen(screenId);
   if (screenId === 'home') renderAllGrids();
   if (pushState) {
-    history.pushState({ screen: screenId }, '', '#' + screenId);
+    const url = screenId === 'home' ? window.location.pathname : '#' + screenId;
+    history.pushState({ screen: screenId }, '', url);
   }
 }
 
@@ -1275,7 +1276,7 @@ async function renderAdminOrders() {
         <td>${payBadge(o.payment_status)}</td>
         <td>${statusBadge(o.order_status)}</td>
         <td style="color:var(--muted)">${new Date(o.created_at).toLocaleDateString('pt-BR')}</td>
-        <td><button class="admin-edit-btn" onclick="openOrderDetail(${JSON.stringify(o.order_number)})">Abrir</button></td>
+        <td><button class="admin-edit-btn" onclick="openOrderDetail('${o.order_number}')">Abrir</button></td>
       </tr>`).join('')}</tbody>
     </table>`;
   } catch (err) {
@@ -1352,18 +1353,24 @@ async function updateOrderStatus(orderNumber) {
 document.getElementById('page-title').textContent = BRAND_NAME;
 document.querySelectorAll('.brand-name').forEach(el => el.textContent = BRAND_NAME);
 
-checkReturnFromMP();
 loadProducts();
 
-// Restaura tela pelo hash da URL ao carregar
-(function initFromHash() {
-  const hash = window.location.hash.replace('#', '');
-  const validScreens = ['home','product','sobre','historia','sustentabilidade','checkout','status'];
-  if (hash && validScreens.includes(hash)) {
-    showScreen(hash);
-    history.replaceState({ screen: hash }, '', '#' + hash);
+// Restaura tela correta ao carregar
+(function initScreen() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('order')) {
+    // Voltou do Mercado Pago — tela de status tem prioridade
+    checkReturnFromMP();
   } else {
-    history.replaceState({ screen: 'home' }, '', window.location.pathname);
+    // Restaura pelo hash da URL
+    const hash = window.location.hash.replace('#', '');
+    const validScreens = ['home','product','sobre','historia','sustentabilidade','checkout','status'];
+    if (hash && validScreens.includes(hash)) {
+      showScreen(hash);
+      history.replaceState({ screen: hash }, '', '#' + hash);
+    } else {
+      history.replaceState({ screen: 'home' }, '', window.location.pathname);
+    }
   }
 })();
 </script>
