@@ -396,14 +396,17 @@ app.post('/webhook/mercadopago', async (req, res) => {
     }
     const sigParts = {};
     xSignature.split(',').forEach(part => {
-      const [k, v] = part.trim().split('=');
-      if (k && v) sigParts[k] = v;
+      const [k, ...rest] = part.trim().split('=');
+      if (k && rest.length) sigParts[k] = rest.join('=');
     });
     const { ts, v1 } = sigParts;
     const rawStr  = Buffer.isBuffer(req.body) ? req.body.toString() : JSON.stringify(req.body);
     const dataId  = JSON.parse(rawStr)?.data?.id;
     const manifest = `id:${dataId};request-id:${xRequestId};ts:${ts};`;
     const expected = crypto.createHmac('sha256', webhookSecret).update(manifest).digest('hex');
+    console.log('Webhook debug — manifest:', manifest);
+    console.log('Webhook debug — expected:', expected);
+    console.log('Webhook debug — received:', v1);
     if (!v1 || expected.length !== v1.length || !crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(v1))) {
       console.warn('Webhook rejeitado: assinatura inválida');
       return res.sendStatus(401);
