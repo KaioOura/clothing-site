@@ -351,7 +351,7 @@ footer{background:var(--deep);padding:60px 40px 32px;}
     <li><a onclick="navigate('status')">Meu Pedido</a></li>
   </ul>
   <div class="nav-actions">
-    <button class="admin-btn" onclick="openLogin()">⚙ Admin</button>
+    <button class="admin-btn" id="admin-btn" style="display:none" onclick="openLogin()">⚙ Admin</button>
     <button class="cart-btn" id="cart-btn" onclick="openCart()">Sacola (0)</button>
   </div>
 </nav>
@@ -451,10 +451,6 @@ footer{background:var(--deep);padding:60px 40px 32px;}
         <p class="prod-sub-sm" id="prod-sub"></p>
         <div class="prod-price-row" id="prod-prices"></div>
         <div class="prod-divider"></div>
-        <p class="prod-label">Tamanho</p>
-        <div class="sizes-row" id="sizes-row"></div>
-        <p class="prod-label">Cor</p>
-        <div class="colors-row" id="colors-row"></div>
         <button class="btn-add-cart" onclick="addFromProduct()">Adicionar à sacola</button>
         <button class="btn-wishlist">♡ Adicionar aos favoritos</button>
         <p class="prod-desc" id="prod-desc"></p>
@@ -783,9 +779,10 @@ function getDemoProducts() {
 // RENDERIZAÇÃO DE PRODUTOS
 // ════════════════════════════════════════════════════════════════
 function renderCard(p) {
+  const firstImg = (p.images || '').split('\n').map(u => u.trim()).find(u => u.startsWith('http')) || null;
   return `<div class="pcard" onclick="openProduct(${p.id})">
     <div class="pcard-img">
-      <div class="pcard-img-inner" style="background:${esc(p.bg_color)}">${esc(p.emoji)}</div>
+      <div class="pcard-img-inner" style="background:${firstImg ? '#f5f5f3' : esc(p.bg_color)}">${productMediaHTML(firstImg, p.emoji)}</div>
       ${p.tag ? `<div class="ptag${p.is_sale ? ' sale-tag' : ''}">${esc(p.tag)}</div>` : ''}
       <button class="padd" onclick="event.stopPropagation();quickAdd(${p.id})">+ Adicionar</button>
     </div>
@@ -810,44 +807,59 @@ function renderAllGrids() {
   ga.innerHTML = PRODUCTS.map(renderCard).join('');
 }
 
+function productMediaHTML(src, fallbackEmoji, large = false) {
+  if (src && src.startsWith('http')) {
+    const size = large ? 'width:100%;height:100%;object-fit:cover;border-radius:2px' : 'width:100%;height:100%;object-fit:cover;border-radius:2px';
+    return `<img src="${esc(src)}" style="${size}" onerror="this.style.display='none';this.nextSibling.style.display='flex'"><span style="display:none;font-size:${large?'96':'24'}px;align-items:center;justify-content:center;width:100%;height:100%">${esc(fallbackEmoji||'👗')}</span>`;
+  }
+  return `<span style="font-size:${large?'96':'24'}px">${esc(fallbackEmoji||'👗')}</span>`;
+}
+
 function openProduct(id) {
   selectedProduct = PRODUCTS.find(p => p.id === id);
-  selectedSize = null; selectedColor = 0;
   const p = selectedProduct;
+  const images = (p.images || '').split('\n').map(u => u.trim()).filter(u => u.startsWith('http'));
+
   document.getElementById('bc-name').textContent = p.name;
   document.getElementById('prod-name').textContent = p.name;
   document.getElementById('prod-sub').textContent = p.subtitle;
   document.getElementById('prod-desc').textContent = p.description;
-  const tags = document.getElementById('prod-tags');
-  tags.innerHTML = p.tag ? `<span class="prod-tag ${p.is_sale ? 'sale-tag2' : 'new-tag'}">${esc(p.tag)}</span>` : '';
+  document.getElementById('prod-tags').innerHTML = p.tag ? `<span class="prod-tag ${p.is_sale ? 'sale-tag2' : 'new-tag'}">${esc(p.tag)}</span>` : '';
   document.getElementById('prod-prices').innerHTML = `<span class="prod-price-now">${fmt(p.price)}</span>${p.old_price ? `<span class="prod-price-old">${fmt(p.old_price)}</span><span class="prod-discount">${Math.round((1 - p.price / p.old_price) * 100)}% OFF</span>` : ''}`;
-  const sizes = p.sizes.split(',').map(s => s.trim());
-  document.getElementById('sizes-row').innerHTML = sizes.map(s => `<button class="size-btn" onclick="selectSize(${JSON.stringify(s)},this)">${esc(s)}</button>`).join('');
-  const colors = p.colors.split(',').map(c => c.trim());
-  document.getElementById('colors-row').innerHTML = colors.map((c, i) => `<div class="color-dot${i === 0 ? ' selected' : ''}" style="background:${esc(c)};border-color:${esc(c)}" onclick="selectColor(${i},this)"></div>`).join('');
-  document.getElementById('prod-thumbs').innerHTML = [p.emoji, '🏷️', '📦'].map((e, i) => `<div class="prod-thumb${i === 0 ? ' active' : ''}" style="background:${esc(p.bg_color)}" onclick="selectThumb(${i},this)">${esc(e)}</div>`).join('');
+
   const mi = document.getElementById('prod-main-img');
-  mi.style.background = p.bg_color;
-  mi.innerHTML = `<span style="font-size:96px">${esc(p.emoji)}</span>`;
+  mi.style.background = images.length ? '#f5f5f3' : p.bg_color;
+
+  const allMedia = images.length ? images : [null];
+  mi.innerHTML = productMediaHTML(allMedia[0], p.emoji, true);
+
+  document.getElementById('prod-thumbs').innerHTML = allMedia.map((src, i) =>
+    `<div class="prod-thumb${i === 0 ? ' active' : ''}" style="background:${src ? '#f5f5f3' : esc(p.bg_color)}" onclick="selectThumb(${i},this,'${esc(src||'')}','${esc(p.emoji||'👗')}','${esc(p.bg_color)}')">${productMediaHTML(src, p.emoji)}</div>`
+  ).join('');
+
   const details = (p.details || '').split('|').filter(Boolean).map(d => { const [k, v] = d.split(':'); return `<div class="detail-row"><span class="detail-key">${esc(k||'')}</span><span>${esc(v||'')}</span></div>`; }).join('');
   document.getElementById('prod-details').innerHTML = details;
   navigate('product');
 }
 
-function selectSize(s, btn) { selectedSize = s; document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected')); btn.classList.add('selected'); }
-function selectColor(i, dot) { selectedColor = i; document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('selected')); dot.classList.add('selected'); }
-function selectThumb(i, t) { document.querySelectorAll('.prod-thumb').forEach(th => th.classList.remove('active')); t.classList.add('active'); }
+function selectThumb(i, t, src, fallback, bg) {
+  document.querySelectorAll('.prod-thumb').forEach(th => th.classList.remove('active'));
+  t.classList.add('active');
+  const mi = document.getElementById('prod-main-img');
+  mi.style.background = src ? '#f5f5f3' : bg;
+  mi.innerHTML = productMediaHTML(src || null, fallback, true);
+}
 
 // ════════════════════════════════════════════════════════════════
 // CARRINHO
 // ════════════════════════════════════════════════════════════════
-function quickAdd(id) { const p = PRODUCTS.find(x => x.id === id); addToCart(p, p.sizes.split(',')[0].trim(), 0); }
-function addFromProduct() { if (!selectedSize) { showToast('Selecione um tamanho'); return; } addToCart(selectedProduct, selectedSize, selectedColor); }
+function quickAdd(id) { const p = PRODUCTS.find(x => x.id === id); addToCart(p); }
+function addFromProduct() { addToCart(selectedProduct); }
 
-function addToCart(p, size, colorIdx) {
-  const key = `${p.id}-${size}-${colorIdx}`;
+function addToCart(p) {
+  const key = `${p.id}`;
   const ex = cart.find(i => i.key === key);
-  if (ex) ex.qty++; else cart.push({ key, product: p, size, colorIdx, qty: 1 });
+  if (ex) ex.qty++; else cart.push({ key, product: p, qty: 1 });
   updateCartBtn();
   showToast(`"${p.name}" adicionado à sacola!`);
 }
@@ -868,7 +880,7 @@ function renderCartPanel() {
       <div class="ci-img" style="background:${esc(p.bg_color)}">${esc(p.emoji)}</div>
       <div>
         <div class="ci-name">${esc(p.name)}</div>
-        <div class="ci-meta">Tam. ${esc(i.size)} · Qtd. ${i.qty}</div>
+        <div class="ci-meta">Qtd. ${i.qty}</div>
         <div class="ci-prices">
           <span class="ci-price-now">${fmt(p.price * i.qty)}</span>
           ${p.old_price ? `<span class="ci-price-old">${fmt(p.old_price * i.qty)}</span>` : ''}
@@ -900,7 +912,7 @@ function renderOrderSummary() {
   if (!oi || !ot) return;
   oi.innerHTML = cart.map(i => `<div class="os-item">
     <div class="os-img" style="background:${esc(i.product.bg_color)}">${esc(i.product.emoji)}</div>
-    <div><div class="os-name">${esc(i.product.name)}</div><div class="os-meta">Tam. ${esc(i.size)} · Qtd. ${i.qty}</div></div>
+    <div><div class="os-name">${esc(i.product.name)}</div><div class="os-meta">Qtd. ${i.qty}</div></div>
     <div class="os-price">${fmt(i.product.price * i.qty)}</div>
   </div>`).join('');
   const sub = cart.reduce((a, i) => a + (i.product.old_price || i.product.price) * i.qty, 0);
@@ -935,9 +947,12 @@ function applyCoupon() {
 }
 
 async function placeOrder() {
-  const name = document.getElementById('c-name').value.trim();
+  const name  = document.getElementById('c-name').value.trim();
   const email = document.getElementById('c-email').value.trim();
-  if (!name || !email) { showToast('Preencha nome e e-mail'); return; }
+  const zip   = document.getElementById('c-zip').value.trim().replace(/\D/g, '');
+  if (!name)  { showToast('Preencha seu nome'); return; }
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showToast('E-mail inválido'); return; }
+  if (!zip || zip.length !== 8) { showToast('CEP inválido — informe os 8 dígitos'); return; }
   if (!cart.length) { showToast('Sua sacola está vazia'); return; }
 
   const sub = cart.reduce((a, i) => a + (i.product.old_price || i.product.price) * i.qty, 0);
@@ -1169,17 +1184,15 @@ function openProductForm(id) {
       <div class="afield"><label>Nome *</label><input id="af-name" value="${esc(p.name)}" placeholder="Ex: Vestido Linho"></div>
       <div class="afield"><label>Subtítulo</label><input id="af-sub" value="${esc(p.subtitle || '')}" placeholder="Ex: Off-white · Linho 100%"></div>
     </div>
-    <div class="aform-grid">
-      <div class="afield"><label>Emoji</label><input id="af-emoji" value="${esc(p.emoji)}"></div>
-      <div class="afield"><label>Cor de fundo (hex)</label><input id="af-bg" value="${esc(p.bg_color)}" placeholder="#E8DFDA"></div>
+    <div class="aform-grid full">
+      <div class="afield"><label>URLs de imagem (uma por linha — use Imgur, Google Drive público, etc.)</label><textarea id="af-images" placeholder="https://i.imgur.com/exemplo.jpg&#10;https://i.imgur.com/exemplo2.jpg" style="min-height:80px">${esc((p.images || p.emoji || ''))}</textarea></div>
+    </div>
+    <div class="aform-grid full">
+      <div class="afield"><label>Emoji de fallback (exibido se não houver imagem)</label><input id="af-emoji" value="${esc(p.emoji || '👗')}" placeholder="👗" style="max-width:120px"></div>
     </div>
     <div class="aform-grid">
       <div class="afield"><label>Preço (R$) *</label><input id="af-price" type="number" value="${esc(String(p.price))}" placeholder="299"></div>
       <div class="afield"><label>Preço antigo (R$) — só se em promoção</label><input id="af-oldprice" type="number" value="${esc(String(p.old_price || ''))}" placeholder="Deixe vazio se não houver"></div>
-    </div>
-    <div class="aform-grid">
-      <div class="afield"><label>Tamanhos (vírgula)</label><input id="af-sizes" value="${esc(p.sizes)}" placeholder="P,M,G,GG"></div>
-      <div class="afield"><label>Cores hex (vírgula)</label><input id="af-colors" value="${esc(p.colors)}" placeholder="#C4753A,#F5E6D0"></div>
     </div>
     <div class="aform-grid">
       <div class="afield"><label>Etiqueta</label><input id="af-tag" value="${esc(p.tag || '')}" placeholder="Novo, Sale, Exclusivo…"></div>
@@ -1203,18 +1216,21 @@ async function saveProduct(id) {
   const name = document.getElementById('af-name').value.trim();
   if (!name) { showToast('Digite o nome do produto'); return; }
   const op = document.getElementById('af-oldprice').value;
+  const rawImages = document.getElementById('af-images').value.trim();
+  const imageList = rawImages.split('\n').map(u => u.trim()).filter(u => u.startsWith('http'));
   const payload = {
     name, subtitle: document.getElementById('af-sub').value.trim(),
     emoji: document.getElementById('af-emoji').value.trim() || '👗',
-    bg_color: document.getElementById('af-bg').value.trim() || '#E8DFDA',
+    bg_color: '#E8DFDA',
+    images: imageList.join('\n'),
     price: parseFloat(document.getElementById('af-price').value) || 0,
     old_price: op ? parseFloat(op) : null,
     tag: document.getElementById('af-tag').value.trim() || null,
     is_new: document.getElementById('af-new').checked,
     is_sale: document.getElementById('af-sale').checked,
     description: document.getElementById('af-desc').value.trim(),
-    sizes: document.getElementById('af-sizes').value.trim() || 'P,M,G',
-    colors: document.getElementById('af-colors').value.trim() || '#C4753A',
+    sizes: 'N/A',
+    colors: '#C4753A',
     details: document.getElementById('af-details').value.trim(),
     active: true,
   };
@@ -1352,6 +1368,14 @@ async function updateOrderStatus(orderNumber) {
 // Aplica BRAND_NAME em todos os elementos da página
 document.getElementById('page-title').textContent = BRAND_NAME;
 document.querySelectorAll('.brand-name').forEach(el => el.textContent = BRAND_NAME);
+
+// Atalho secreto para abrir o admin: Ctrl+Shift+A
+document.addEventListener('keydown', e => {
+  if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+    document.getElementById('admin-btn').style.display = 'inline-flex';
+    openLogin();
+  }
+});
 
 loadProducts();
 

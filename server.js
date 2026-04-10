@@ -173,12 +173,12 @@ app.get('/api/products', async (req, res) => {
 
 // POST /api/products — cria produto (admin)
 app.post('/api/products', requireAdmin, async (req, res) => {
-  const { name, subtitle, emoji, bg_color, price, old_price, tag, is_new, is_sale, description, sizes, colors, details } = req.body;
+  const { name, subtitle, emoji, bg_color, price, old_price, tag, is_new, is_sale, description, sizes, colors, details, images } = req.body;
   try {
     const { rows } = await pool.query(
-      `INSERT INTO products (name, subtitle, emoji, bg_color, price, old_price, tag, is_new, is_sale, description, sizes, colors, details)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING *`,
-      [name, subtitle, emoji, bg_color, price, old_price || null, tag || null, is_new, is_sale, description, sizes, colors, details]
+      `INSERT INTO products (name, subtitle, emoji, bg_color, price, old_price, tag, is_new, is_sale, description, sizes, colors, details, images)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING *`,
+      [name, subtitle, emoji, bg_color, price, old_price || null, tag || null, is_new, is_sale, description, sizes, colors, details, images || '']
     );
     res.status(201).json(rows[0]);
   } catch (err) {
@@ -190,13 +190,13 @@ app.post('/api/products', requireAdmin, async (req, res) => {
 // PUT /api/products/:id — atualiza produto (admin)
 app.put('/api/products/:id', requireAdmin, async (req, res) => {
   const { id } = req.params;
-  const { name, subtitle, emoji, bg_color, price, old_price, tag, is_new, is_sale, description, sizes, colors, details, active } = req.body;
+  const { name, subtitle, emoji, bg_color, price, old_price, tag, is_new, is_sale, description, sizes, colors, details, active, images } = req.body;
   try {
     const { rows } = await pool.query(
       `UPDATE products SET name=$1, subtitle=$2, emoji=$3, bg_color=$4, price=$5, old_price=$6,
-       tag=$7, is_new=$8, is_sale=$9, description=$10, sizes=$11, colors=$12, details=$13, active=$14
-       WHERE id=$15 RETURNING *`,
-      [name, subtitle, emoji, bg_color, price, old_price || null, tag || null, is_new, is_sale, description, sizes, colors, details, active, id]
+       tag=$7, is_new=$8, is_sale=$9, description=$10, sizes=$11, colors=$12, details=$13, active=$14, images=$15
+       WHERE id=$16 RETURNING *`,
+      [name, subtitle, emoji, bg_color, price, old_price || null, tag || null, is_new, is_sale, description, sizes, colors, details, active, images || '', id]
     );
     res.json(rows[0]);
   } catch (err) {
@@ -272,7 +272,7 @@ app.post('/api/orders', async (req, res) => {
       },
       back_urls: {
         success: `${process.env.FRONTEND_URL}/?order=${order_number}&status=success`,
-        failure: `${process.env.FRONTEND_URL}/?order=${order_number}&status=failure`,
+        failure: `${process.env.FRONTEND_URL}/#checkout`,
         pending: `${process.env.FRONTEND_URL}/?order=${order_number}&status=pending`,
       },
       auto_return:          'approved',

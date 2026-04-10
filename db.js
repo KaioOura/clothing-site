@@ -86,6 +86,11 @@ async function initDB() {
       console.log('✅ Produtos iniciais inseridos');
     }
 
+    // Migration: adiciona coluna images se não existir
+    await client.query(`
+      ALTER TABLE products ADD COLUMN IF NOT EXISTS images TEXT DEFAULT '';
+    `);
+
     console.log('✅ Banco de dados inicializado com sucesso');
   } finally {
     client.release();
