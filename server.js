@@ -407,8 +407,10 @@ app.post('/webhook/mercadopago', async (req, res) => {
       return res.sendStatus(200); // ignora notificações sem dados suficientes para validar
     }
     const manifest = `id:${dataId};request-id:${xRequestId};ts:${ts};`;
-    const secretKey = Buffer.from(webhookSecret, 'hex');
-    const expected = crypto.createHmac('sha256', secretKey).update(manifest).digest('hex');
+    const expected = crypto.createHmac('sha256', webhookSecret).update(manifest).digest('hex');
+    console.log('Webhook debug — manifest:', manifest);
+    console.log('Webhook debug — expected:', expected);
+    console.log('Webhook debug — received:', v1);
     if (!v1 || expected.length !== v1.length || !crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(v1))) {
       console.warn('Webhook rejeitado: assinatura inválida');
       return res.sendStatus(401);
