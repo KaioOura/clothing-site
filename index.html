@@ -336,6 +336,91 @@ footer{background:var(--deep);padding:60px 40px 32px;}
 .toast{position:fixed;bottom:28px;right:28px;z-index:700;background:var(--charcoal);color:var(--warm);padding:14px 22px;border-radius:2px;font-size:13px;display:flex;align-items:center;gap:10px;transform:translateY(100px);transition:transform .35s cubic-bezier(.34,1.56,.64,1);border-left:3px solid var(--accent);pointer-events:none;}
 .toast.show{transform:translateY(0);}
 .toast-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;}
+
+/* ─── HAMBURGUER (mobile) ────────────────────────────────── */
+.hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:4px;}
+.hamburger span{display:block;width:22px;height:2px;background:var(--charcoal);border-radius:1px;transition:all .25s;}
+.nav-mobile-menu{display:none;position:absolute;top:64px;left:0;right:0;background:var(--warm);border-bottom:1px solid var(--border);z-index:199;padding:12px 0;}
+.nav-mobile-menu.open{display:flex;flex-direction:column;}
+.nav-mobile-menu a{padding:13px 24px;font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-decoration:none;cursor:pointer;transition:color .2s;border-bottom:1px solid var(--border);}
+.nav-mobile-menu a:last-child{border-bottom:none;}
+.nav-mobile-menu a:hover{color:var(--charcoal);}
+
+/* ─── MOBILE (≤ 768px) ───────────────────────────────────── */
+@media(max-width:768px){
+
+  /* Navegação */
+  nav{padding:0 20px;position:relative;}
+  .nav-links{display:none;}
+  .hamburger{display:flex;}
+  .nav-actions{gap:8px;}
+  .cart-btn{padding:8px 14px;font-size:12px;}
+  .admin-btn{padding:6px 10px;font-size:10px;}
+
+  /* Hero */
+  .hero{grid-template-columns:1fr;min-height:auto;}
+  .hero-text{padding:48px 24px;}
+  .hero-title{font-size:38px;}
+  .hero-sub{max-width:100%;font-size:14px;}
+  .hero-visual{min-height:200px;}
+  .hero-placeholder{width:120px;height:180px;font-size:56px;}
+
+  /* Seções */
+  .section{padding:48px 20px;}
+  .section-hd{margin-bottom:28px;}
+  .section-title{font-size:26px;}
+  .sec-divider{margin:0 20px;}
+
+  /* Grid de produtos */
+  .products-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;}
+
+  /* Sale banner */
+  .sale-banner{padding:20px;flex-direction:column;gap:12px;text-align:center;margin:0 0 28px;}
+  .sale-banner h3{font-size:22px;}
+
+  /* Página de produto */
+  .prod-page{padding:0 20px 60px;}
+  .prod-layout{grid-template-columns:1fr;gap:28px;}
+  .prod-gallery{grid-template-columns:72px 1fr;gap:10px;}
+  .prod-name-big{font-size:24px;}
+  .prod-price-now{font-size:22px;}
+
+  /* Páginas informativas */
+  .info-page{padding:48px 20px;}
+  .info-page h1{font-size:30px;}
+  .info-values{grid-template-columns:1fr;gap:14px;margin:28px 0;}
+
+  /* Carrinho */
+  .cart-panel{width:100vw;}
+
+  /* Checkout */
+  .checkout-page{padding:24px 20px;}
+  .checkout-grid{grid-template-columns:1fr;gap:24px;}
+  .order-summary{position:static;}
+  .checkout-left h2{font-size:22px;margin-bottom:24px;}
+  .form-row{grid-template-columns:1fr;}
+
+  /* Status do pedido */
+  .status-page{padding:40px 20px;}
+  .status-page h2{font-size:24px;}
+
+  /* Admin */
+  .admin-modal{width:100%;max-width:100%;max-height:100vh;border-radius:0;}
+  .aform-grid{grid-template-columns:1fr;}
+  .aod-grid{grid-template-columns:1fr;}
+  .admin-prod-row{grid-template-columns:40px 1fr auto auto;gap:8px;}
+  .orders-table{display:block;overflow-x:auto;}
+  .status-update-form{flex-direction:column;}
+
+  /* Rodapé */
+  footer{padding:48px 20px 24px;}
+  .footer-top{grid-template-columns:1fr;gap:32px;}
+  .footer-bottom{flex-direction:column;gap:12px;text-align:center;}
+  .footer-social{justify-content:center;}
+
+  /* Toast */
+  .toast{bottom:16px;right:16px;left:16px;font-size:12px;}
+}
 </style>
 </head>
 <body>
@@ -353,8 +438,18 @@ footer{background:var(--deep);padding:60px 40px 32px;}
   <div class="nav-actions">
     <button class="admin-btn" id="admin-btn" style="display:none" onclick="openLogin()">⚙ Admin</button>
     <button class="cart-btn" id="cart-btn" onclick="openCart()">Sacola (0)</button>
+    <button class="hamburger" id="hamburger-btn" onclick="toggleMobileMenu()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </nav>
+<div class="nav-mobile-menu" id="nav-mobile-menu">
+  <a onclick="navigate('home');closeMobileMenu()">Coleções</a>
+  <a onclick="navigateSection('novidades');closeMobileMenu()">Novidades</a>
+  <a onclick="navigateSection('sale');closeMobileMenu()">Sale</a>
+  <a onclick="navigate('sobre');closeMobileMenu()">Sobre</a>
+  <a onclick="navigate('status');closeMobileMenu()">Meu Pedido</a>
+</div>
 
 <!-- ─── HOME ──────────────────────────────────────────────────────── -->
 <div id="screen-home" class="screen active">
@@ -710,6 +805,13 @@ function navigateSection(sec) {
 }
 
 function goHome() { navigate('home'); }
+function toggleMobileMenu(){
+  const m=document.getElementById('nav-mobile-menu');
+  m.classList.toggle('open');
+}
+function closeMobileMenu(){
+  document.getElementById('nav-mobile-menu').classList.remove('open');
+}
 function goToSection(sec) { navigateSection(sec); }
 
 window.addEventListener('popstate', (e) => {
