@@ -1036,7 +1036,7 @@ function renderOrderSummary() {
   ot.innerHTML = `
     ${disc > 0 ? `<div class="os-row disc"><span>Desconto promoção</span><span>- ${fmt(disc)}</span></div>` : ''}
     <div class="os-row"><span>Frete</span><span>${frete === 0 ? 'Grátis' : fmt(frete)}</span></div>
-    ${couponDisc > 0 ? `<div class="os-row disc"><span>Cupom MAISON10</span><span>- ${fmt(couponDisc)}</span></div>` : ''}
+    ${couponDisc > 0 ? `<div class="os-row disc"><span>Cupom OCB10</span><span>- ${fmt(couponDisc)}</span></div>` : ''}
     ${pixDisc > 0 ? `<div class="os-row disc"><span>Desconto Pix (5%)</span><span>- ${fmt(pixDisc)}</span></div>` : ''}
     <div class="os-total"><span>Total</span><span>${fmt(grand)}</span></div>`;
 }
@@ -1053,7 +1053,7 @@ function setPayMethod(m) {
 
 function applyCoupon() {
   const v = document.getElementById('coupon-input').value.trim().toUpperCase();
-  if (v === 'MAISON10') { couponApplied = true; renderOrderSummary(); showToast('Cupom aplicado! 10% de desconto'); }
+  if (v === 'OCB10') { couponApplied = true; renderOrderSummary(); showToast('Cupom aplicado! 10% de desconto'); }
   else showToast('Cupom inválido');
 }
 

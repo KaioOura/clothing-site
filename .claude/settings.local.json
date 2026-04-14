@@ -4,7 +4,11 @@
       "Bash([ -f .env ])",
       "Bash([ -f .gitignore ])",
       "Bash(sed -n '1100,1110p' index.html)",
-      "Bash(sed -n '1113,1123p' index.html)"
+      "Bash(sed -n '1113,1123p' index.html)",
+      "Bash(cp \"c:/Users/Kaio/Desktop/Claude Code Site/server.js\" \"c:/Users/Kaio/Desktop/Claude Code Site Backend/server.js\")",
+      "Bash(cp \"c:/Users/Kaio/Desktop/Claude Code Site/db.js\" \"c:/Users/Kaio/Desktop/Claude Code Site Backend/db.js\")",
+      "Bash(cp \"c:/Users/Kaio/Desktop/Claude Code Site/package.json\" \"c:/Users/Kaio/Desktop/Claude Code Site Backend/package.json\")",
+      "Bash(cp \"c:/Users/Kaio/Desktop/Claude Code Site/railway.json\" \"c:/Users/Kaio/Desktop/Claude Code Site Backend/railway.json\")"
     ]
   }
 }
