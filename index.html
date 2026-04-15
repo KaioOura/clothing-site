@@ -64,6 +64,8 @@ nav{position:sticky;top:0;z-index:200;background:var(--warm);border-bottom:1px s
 .pcard:hover .pcard-img-inner{transform:scale(1.05);}
 .ptag{position:absolute;top:12px;left:12px;font-size:9px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;background:var(--charcoal);color:var(--cream);padding:4px 10px;border-radius:1px;}
 .ptag.sale-tag{background:var(--accent);}
+.sold-overlay{position:absolute;inset:0;background:rgba(253,250,247,.75);display:flex;align-items:center;justify-content:center;}
+.sold-label{font-size:11px;font-weight:500;letter-spacing:.15em;text-transform:uppercase;color:var(--charcoal);background:var(--warm);padding:7px 18px;border-radius:1px;border:1px solid var(--charcoal);}
 .padd{position:absolute;bottom:0;left:0;right:0;background:var(--charcoal);color:var(--warm);padding:11px;font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;border:none;cursor:pointer;transform:translateY(100%);transition:transform .3s;display:flex;align-items:center;justify-content:center;gap:8px;}
 .pcard:hover .padd{transform:translateY(0);}.padd:hover{background:var(--accent);}
 .pname{font-size:14px;font-weight:400;margin-bottom:4px;}
@@ -546,7 +548,7 @@ footer{background:var(--deep);padding:60px 40px 32px;}
         <p class="prod-sub-sm" id="prod-sub"></p>
         <div class="prod-price-row" id="prod-prices"></div>
         <div class="prod-divider"></div>
-        <button class="btn-add-cart" onclick="addFromProduct()">Adicionar à sacola</button>
+        <button class="btn-add-cart" id="btn-add-cart-prod" onclick="addFromProduct()">Adicionar à sacola</button>
         <p class="prod-desc" id="prod-desc"></p>
         <div id="prod-details"></div>
       </div>
@@ -883,11 +885,12 @@ function renderCard(p) {
   const imgs = (p.images || '').split('\n').map(u => u.trim()).filter(u => u.startsWith('http'));
   const firstImg = imgs[0] || null;
   const secondImg = imgs[1] || null;
-  return `<div class="pcard" onclick="openProduct(${p.id})">
-    <div class="pcard-img" ${secondImg ? `data-img1="${esc(firstImg)}" data-img2="${esc(secondImg)}" data-emoji="${esc(p.emoji||'👗')}" onmouseenter="pcardHover(this,true)" onmouseleave="pcardHover(this,false)"` : ''}>
+  const esgotado = Number(p.stock) === 0;
+  return `<div class="pcard" onclick="openProduct(${p.id})" style="${esgotado ? 'opacity:.7' : ''}">
+    <div class="pcard-img" ${!esgotado && secondImg ? `data-img1="${esc(firstImg)}" data-img2="${esc(secondImg)}" data-emoji="${esc(p.emoji||'👗')}" onmouseenter="pcardHover(this,true)" onmouseleave="pcardHover(this,false)"` : ''}>
       <div class="pcard-img-inner" style="background:${firstImg ? '#f5f5f3' : esc(p.bg_color)}">${productMediaHTML(firstImg, p.emoji)}</div>
-      ${p.tag ? `<div class="ptag${p.is_sale ? ' sale-tag' : ''}">${esc(p.tag)}</div>` : ''}
-      <button class="padd" onclick="event.stopPropagation();quickAdd(${p.id})">+ Adicionar</button>
+      ${p.tag && !esgotado ? `<div class="ptag${p.is_sale ? ' sale-tag' : ''}">${esc(p.tag)}</div>` : ''}
+      ${esgotado ? `<div class="sold-overlay"><span class="sold-label">Esgotado</span></div>` : `<button class="padd" onclick="event.stopPropagation();quickAdd(${p.id})">+ Adicionar</button>`}
     </div>
     <div class="pname">${esc(p.name)}</div>
     <div class="psub">${esc(p.subtitle)}</div>
@@ -950,6 +953,20 @@ function openProduct(id) {
 
   const details = (p.details || '').split('|').filter(Boolean).map(d => { const [k, v] = d.split(':'); return `<div class="detail-row"><span class="detail-key">${esc(k||'')}</span><span>${esc(v||'')}</span></div>`; }).join('');
   document.getElementById('prod-details').innerHTML = details;
+
+  const btnAdd = document.getElementById('btn-add-cart-prod');
+  if (Number(p.stock) === 0) {
+    btnAdd.textContent = 'Esgotado';
+    btnAdd.disabled = true;
+    btnAdd.style.opacity = '0.5';
+    btnAdd.style.cursor = 'not-allowed';
+  } else {
+    btnAdd.textContent = 'Adicionar à sacola';
+    btnAdd.disabled = false;
+    btnAdd.style.opacity = '';
+    btnAdd.style.cursor = '';
+  }
+
   navigate('product');
 }
 
@@ -968,9 +985,11 @@ function quickAdd(id) { const p = PRODUCTS.find(x => x.id === id); addToCart(p);
 function addFromProduct() { addToCart(selectedProduct); }
 
 function addToCart(p) {
+  if (Number(p.stock) === 0) { showToast('Este produto está esgotado.'); return; }
   const key = `${p.id}`;
   const ex = cart.find(i => i.key === key);
-  if (ex) ex.qty++; else cart.push({ key, product: p, qty: 1 });
+  if (ex) { showToast(`"${p.name}" já está na sua sacola.`); return; }
+  cart.push({ key, product: p, qty: 1 });
   updateCartBtn();
   showToast(`"${p.name}" adicionado à sacola!`);
 }
@@ -1306,6 +1325,10 @@ function openProductForm(id) {
       <div class="afield"><label>Preço antigo (R$) — só se em promoção</label><input id="af-oldprice" type="number" value="${esc(String(p.old_price || ''))}" placeholder="Deixe vazio se não houver"></div>
     </div>
     <div class="aform-grid">
+      <div class="afield"><label>Estoque (unidades disponíveis)</label><input id="af-stock" type="number" min="0" value="${esc(String(p.stock ?? 1))}" placeholder="1"></div>
+      <div class="afield" style="justify-content:flex-end;padding-top:20px"><span style="font-size:12px;color:var(--muted)">💡 Brechó: use 1 por peça. Zerar = "Esgotado".</span></div>
+    </div>
+    <div class="aform-grid">
       <div class="afield"><label>Etiqueta</label><input id="af-tag" value="${esc(p.tag || '')}" placeholder="Novo, Sale, Exclusivo…"></div>
       <div class="afield" style="flex-direction:row;gap:20px;align-items:center;padding-top:20px">
         <label style="display:flex;gap:6px;align-items:center;cursor:pointer;font-size:13px;text-transform:none;letter-spacing:0"><input type="checkbox" id="af-new" ${p.is_new ? 'checked' : ''}> Novidade</label>
@@ -1336,6 +1359,7 @@ async function saveProduct(id) {
     images: imageList.join('\n'),
     price: parseFloat(document.getElementById('af-price').value) || 0,
     old_price: op ? parseFloat(op) : null,
+    stock: parseInt(document.getElementById('af-stock').value) || 0,
     tag: document.getElementById('af-tag').value.trim() || null,
     is_new: document.getElementById('af-new').checked,
     is_sale: document.getElementById('af-sale').checked,
