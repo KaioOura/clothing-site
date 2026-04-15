@@ -819,6 +819,10 @@ function goToSection(sec) { navigateSection(sec); }
 
 window.addEventListener('popstate', (e) => {
   const screen = e.state?.screen || 'home';
+  if (screen === 'product' && e.state?.productId) {
+    const p = PRODUCTS.find(x => x.id === e.state.productId);
+    if (p) { openProduct(p.id); return; }
+  }
   showScreen(screen);
   if (screen === 'home') renderAllGrids();
 });
@@ -976,7 +980,8 @@ function openProduct(id) {
     btnAdd.style.cursor = '';
   }
 
-  navigate('product');
+  showScreen('product');
+  history.pushState({ screen: 'product', productId: p.id }, '', '#product/' + p.id);
 }
 
 function selectThumb(i, t, src, fallback, bg) {
@@ -1522,26 +1527,29 @@ document.addEventListener('keydown', e => {
   }
 });
 
-loadProducts();
-
-// Restaura tela correta ao carregar
-(function initScreen() {
+loadProducts().then(() => {
+  // Restaura tela correta após produtos carregarem
   const params = new URLSearchParams(window.location.search);
   if (params.get('order')) {
     // Voltou do Mercado Pago — tela de status tem prioridade
     checkReturnFromMP();
-  } else {
-    // Restaura pelo hash da URL
-    const hash = window.location.hash.replace('#', '');
-    const validScreens = ['home','product','sobre','historia','sustentabilidade','checkout','status'];
-    if (hash && validScreens.includes(hash)) {
-      showScreen(hash);
-      history.replaceState({ screen: hash }, '', '#' + hash);
-    } else {
-      history.replaceState({ screen: 'home' }, '', window.location.pathname);
-    }
+    return;
   }
-})();
+  const hash = window.location.hash.replace('#', '');
+  // Produto com ID na URL — ex: #product/3
+  if (hash.startsWith('product/')) {
+    const id = parseInt(hash.split('/')[1]);
+    const p = PRODUCTS.find(x => x.id === id);
+    if (p) { openProduct(p.id); return; }
+  }
+  const validScreens = ['home','sobre','historia','sustentabilidade','checkout','status'];
+  if (hash && validScreens.includes(hash)) {
+    showScreen(hash);
+    history.replaceState({ screen: hash }, '', '#' + hash);
+  } else {
+    history.replaceState({ screen: 'home' }, '', window.location.pathname);
+  }
+});
 </script>
 </body>
 </html>
