@@ -5,6 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title id="page-title"></title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script>
+// Roda antes do body renderizar — esconde a home se a URL já aponta para outra tela
+(function(){
+  const h = location.hash;
+  const q = location.search;
+  if ((h && h !== '#home') || q.includes('order=')) {
+    const s = document.createElement('style');
+    s.id = 'pre-nav-hide';
+    s.textContent = '#screen-home{display:none!important}';
+    document.head.appendChild(s);
+  }
+})();
+</script>
 <style>
 /* ─── RESET & VARIÁVEIS ────────────────────────────────── */
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
@@ -784,6 +797,8 @@ let currentAdminTab = 'products';
 const fmt = v => 'R$ ' + Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 function showScreen(id) {
+  const hide = document.getElementById('pre-nav-hide');
+  if (hide) hide.remove();
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   const el = document.getElementById('screen-' + id);
   if (el) { el.classList.add('active'); window.scrollTo(0, 0); }
