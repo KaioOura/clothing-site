@@ -548,6 +548,7 @@ footer{background:var(--deep);padding:60px 40px 32px;}
         <p class="prod-sub-sm" id="prod-sub"></p>
         <div class="prod-price-row" id="prod-prices"></div>
         <div class="prod-divider"></div>
+        <div id="prod-sizes-row"></div>
         <button class="btn-add-cart" id="btn-add-cart-prod" onclick="addFromProduct()">Adicionar à sacola</button>
         <p class="prod-desc" id="prod-desc"></p>
         <div id="prod-details"></div>
@@ -941,6 +942,14 @@ function openProduct(id) {
   document.getElementById('prod-tags').innerHTML = p.tag ? `<span class="prod-tag ${p.is_sale ? 'sale-tag2' : 'new-tag'}">${esc(p.tag)}</span>` : '';
   document.getElementById('prod-prices').innerHTML = `<span class="prod-price-now">${fmt(p.price)}</span>${p.old_price ? `<span class="prod-price-old">${fmt(p.old_price)}</span><span class="prod-discount">${Math.round((1 - p.price / p.old_price) * 100)}% OFF</span>` : ''}`;
 
+  const sizesEl = document.getElementById('prod-sizes-row');
+  if (p.sizes && p.sizes.trim() && p.sizes.trim() !== 'N/A') {
+    sizesEl.innerHTML = `<p class="prod-label">Tamanho</p><p style="font-size:15px;font-weight:500;margin-bottom:24px">${esc(p.sizes)}</p>`;
+    sizesEl.style.display = 'block';
+  } else {
+    sizesEl.style.display = 'none';
+  }
+
   const mi = document.getElementById('prod-main-img');
   mi.style.background = images.length ? '#f5f5f3' : p.bg_color;
 
@@ -1325,8 +1334,8 @@ function openProductForm(id) {
       <div class="afield"><label>Preço antigo (R$) — só se em promoção</label><input id="af-oldprice" type="number" value="${esc(String(p.old_price || ''))}" placeholder="Deixe vazio se não houver"></div>
     </div>
     <div class="aform-grid">
+      <div class="afield"><label>Tamanho</label><input id="af-sizes" value="${esc(p.sizes || '')}" placeholder="Ex: M, 38, P/M, Único…"></div>
       <div class="afield"><label>Estoque (unidades disponíveis)</label><input id="af-stock" type="number" min="0" value="${esc(String(p.stock ?? 1))}" placeholder="1"></div>
-      <div class="afield" style="justify-content:flex-end;padding-top:20px"><span style="font-size:12px;color:var(--muted)">💡 Brechó: use 1 por peça. Zerar = "Esgotado".</span></div>
     </div>
     <div class="aform-grid">
       <div class="afield"><label>Etiqueta</label><input id="af-tag" value="${esc(p.tag || '')}" placeholder="Novo, Sale, Exclusivo…"></div>
@@ -1359,6 +1368,7 @@ async function saveProduct(id) {
     images: imageList.join('\n'),
     price: parseFloat(document.getElementById('af-price').value) || 0,
     old_price: op ? parseFloat(op) : null,
+    sizes: document.getElementById('af-sizes').value.trim() || '',
     stock: parseInt(document.getElementById('af-stock').value) || 0,
     tag: document.getElementById('af-tag').value.trim() || null,
     is_new: document.getElementById('af-new').checked,
