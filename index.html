@@ -270,7 +270,12 @@ nav{position:sticky;top:0;z-index:200;background:#fff;border-bottom:1px solid va
 .admin-tab:hover{color:var(--text);}
 .admin-body{overflow-y:auto;padding:24px 28px;flex:1;}
 .admin-product-list{display:flex;flex-direction:column;gap:8px;margin-bottom:24px;}
-.admin-prod-row{display:grid;grid-template-columns:48px 1fr auto auto;gap:12px;align-items:center;padding:14px 16px;background:var(--bg-2);}
+.admin-prod-row{display:grid;grid-template-columns:48px 1fr auto auto auto;gap:12px;align-items:center;padding:14px 16px;background:var(--bg-2);}
+.admin-restore-btn{padding:6px 14px;background:none;border:1.5px solid var(--green);border-radius:30px;font-size:12px;font-weight:500;cursor:pointer;color:var(--green);font-family:inherit;white-space:nowrap;}
+.admin-restore-btn:hover{background:#EAF5EF;}
+.admin-stock-out{color:var(--red);font-weight:600;}
+.login-box{position:relative;}
+.login-close{position:absolute;top:12px;right:14px;background:none;border:none;font-size:18px;line-height:1;cursor:pointer;color:var(--text-2);padding:4px 6px;}.login-close:hover{color:var(--dark);}
 .admin-prod-emoji{font-size:28px;text-align:center;}
 .admin-prod-name{font-size:14px;font-weight:500;margin-bottom:2px;}
 .admin-prod-price{font-size:12px;color:var(--text-2);}
@@ -430,7 +435,7 @@ footer{background:var(--dark);padding:60px 48px 32px;}
   .admin-modal{width:100%;max-width:100%;max-height:100vh;border-radius:0;}
   .aform-grid{grid-template-columns:1fr;}
   .aod-grid{grid-template-columns:1fr;}
-  .admin-prod-row{grid-template-columns:40px 1fr auto auto;gap:8px;}
+  .admin-prod-row{grid-template-columns:40px 1fr auto auto auto;gap:6px;}
   .orders-table{display:block;overflow-x:auto;}
   .status-update-form{flex-direction:column;}
 
@@ -732,6 +737,7 @@ footer{background:var(--dark);padding:60px 48px 32px;}
 <!-- ─── LOGIN ADMIN ─────────────────────────────────────────────────── -->
 <div class="login-overlay" id="login-overlay">
   <div class="login-box">
+    <button class="login-close" onclick="closeLogin()" aria-label="Fechar">✕</button>
     <h2>Área Admin</h2>
     <p>Digite a senha para acessar o painel</p>
     <input type="password" id="login-pw" placeholder="Senha" onkeydown="if(event.key==='Enter')doLogin()">
@@ -1290,6 +1296,20 @@ function checkReturnFromMP() {
 // ADMIN — LOGIN
 // ════════════════════════════════════════════════════════════════
 function openLogin() { document.getElementById('login-pw').value = ''; document.getElementById('login-err').style.display = 'none'; document.getElementById('login-overlay').classList.add('open'); }
+function closeLogin() { document.getElementById('login-overlay').classList.remove('open'); }
+
+async function restoreStock(id) {
+  if (!confirm('Restaurar estoque deste produto para 1?')) return;
+  try {
+    const updated = await apiFetch(`/api/products/${id}/restore-stock`, { method: 'POST' });
+    const idx = PRODUCTS.findIndex(x => x.id === updated.id);
+    if (idx !== -1) PRODUCTS[idx] = { ...PRODUCTS[idx], stock: updated.stock };
+    showToast('Estoque restaurado!');
+    renderAdminTab('products');
+  } catch (err) {
+    showToast('Erro: ' + err.message);
+  }
+}
 async function doLogin() {
   const pw = document.getElementById('login-pw').value;
   document.getElementById('login-err').style.display = 'none';
@@ -1328,16 +1348,23 @@ function renderAdminProducts(formHTML = '') {
   body.innerHTML = `
     ${formHTML}
     <div class="admin-product-list">
-      ${PRODUCTS.map(p => `
+      ${PRODUCTS.map(p => {
+        const esgotado = Number(p.stock) === 0;
+        const stockInfo = esgotado
+          ? ' · <span class="admin-stock-out">Esgotado</span>'
+          : ` · Estoque: ${p.stock}`;
+        return `
         <div class="admin-prod-row">
           <div class="admin-prod-emoji">${esc(p.emoji)}</div>
           <div>
             <div class="admin-prod-name">${esc(p.name)}</div>
-            <div class="admin-prod-price">${fmt(p.price)}${p.old_price ? ' · De ' + fmt(p.old_price) : ''}${p.is_new ? ' · Novidade' : ''}${p.is_sale ? ' · Sale' : ''}</div>
+            <div class="admin-prod-price">${fmt(p.price)}${p.old_price ? ' · De ' + fmt(p.old_price) : ''}${p.is_new ? ' · Novidade' : ''}${p.is_sale ? ' · Sale' : ''}${stockInfo}</div>
           </div>
+          ${esgotado ? `<button class="admin-restore-btn" onclick="restoreStock(${p.id})">Restaurar</button>` : '<div></div>'}
           <button class="admin-edit-btn" onclick="openProductForm(${p.id})">Editar</button>
           <button class="admin-del-btn" onclick="deleteProduct(${p.id})">Excluir</button>
-        </div>`).join('')}
+        </div>`;
+      }).join('')}
     </div>
     <button class="admin-add-btn" onclick="openProductForm(null)">+ Adicionar novo produto</button>`;
 }
