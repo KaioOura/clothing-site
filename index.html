@@ -10,7 +10,7 @@
 (function(){
   const h = location.hash;
   const q = location.search;
-  if ((h && h !== '#home') || q.includes('order=')) {
+  if ((h && h !== '#home') || q.includes('status=')) {
     const s = document.createElement('style');
     s.id = 'pre-nav-hide';
     s.textContent = '#screen-home{display:none!important}';
@@ -1127,26 +1127,37 @@ async function placeOrder() {
   if (!zip || zip.length !== 8) { showToast('CEP inválido — informe os 8 dígitos'); return; }
   if (!cart.length) { showToast('Sua sacola está vazia'); return; }
 
-  const sub = cart.reduce((a, i) => a + (i.product.old_price || i.product.price) * i.qty, 0);
+  const sub  = cart.reduce((a, i) => a + (i.product.old_price || i.product.price) * i.qty, 0);
   const disc = cart.reduce((a, i) => i.product.old_price ? a + (i.product.old_price - i.product.price) * i.qty : a, 0);
   const total = sub - disc;
   const frete = total >= 299 ? 0 : 19.90;
   const couponDisc = couponApplied ? Math.round(total * 0.1) : 0;
-  const pixDisc = payMethod === 'pix' ? Math.round((total + frete - couponDisc) * 0.05) : 0;
+  const pixDisc    = payMethod === 'pix' ? Math.round((total + frete - couponDisc) * 0.05) : 0;
   const grand = total + frete - couponDisc - pixDisc;
+
+  const phone  = document.getElementById('c-phone').value.trim();
+  const street = document.getElementById('c-street').value.trim();
+  const city   = document.getElementById('c-city').value.trim();
+  const state  = document.getElementById('c-state').value;
+
+  // Salva dados do checkout no sessionStorage para restaurar caso o usuário volte do MP
+  sessionStorage.setItem('checkoutSession', JSON.stringify({
+    form: { name, email, phone, zip: document.getElementById('c-zip').value.trim(), street, city, state },
+    cart: JSON.parse(JSON.stringify(cart)),
+    couponApplied,
+    payMethod,
+  }));
 
   const body = {
     customer_name:  name,
     customer_email: email,
-    customer_phone: document.getElementById('c-phone').value.trim(),
+    customer_phone: phone,
     address_zip:    document.getElementById('c-zip').value.trim(),
-    address_street: document.getElementById('c-street').value.trim(),
-    address_city:   document.getElementById('c-city').value.trim(),
-    address_state:  document.getElementById('c-state').value,
+    address_street: street,
+    address_city:   city,
+    address_state:  state,
     items: cart.map(i => ({ id: i.product.id, name: i.product.name, qty: i.qty, price: i.product.price })),
-    subtotal: sub,
-    discount: disc,
-    shipping: frete,
+    subtotal: sub, discount: disc, shipping: frete,
     coupon_discount: couponDisc + pixDisc,
     total: grand,
     payment_method: payMethod,
@@ -1154,23 +1165,43 @@ async function placeOrder() {
 
   const btn = document.getElementById('btn-place');
   btn.disabled = true;
-  document.getElementById('btn-place-text').textContent = 'Criando pedido...';
-  showLoading('Criando seu pedido...');
+  document.getElementById('btn-place-text').textContent = 'Preparando pagamento...';
+  showLoading('Preparando pagamento...');
 
   try {
-    const result = await apiFetch('/api/orders', { method: 'POST', body: JSON.stringify(body) });
+    const result = await apiFetch('/api/checkout/session', { method: 'POST', body: JSON.stringify(body) });
     hideLoading();
-    cart = [];
-    couponApplied = false;
-    updateCartBtn();
-    // Redireciona para o Mercado Pago
     window.location.href = result.mp_init_point;
   } catch (err) {
     hideLoading();
     btn.disabled = false;
     document.getElementById('btn-place-text').textContent = 'Confirmar e pagar';
-    showToast('Erro ao criar pedido: ' + err.message);
+    showToast('Erro ao iniciar pagamento: ' + err.message);
   }
+}
+
+function restoreCheckoutFromSession() {
+  const saved = sessionStorage.getItem('checkoutSession');
+  if (!saved) return;
+  try {
+    const data = JSON.parse(saved);
+    if (data.form) {
+      document.getElementById('c-name').value   = data.form.name   || '';
+      document.getElementById('c-email').value  = data.form.email  || '';
+      document.getElementById('c-phone').value  = data.form.phone  || '';
+      document.getElementById('c-zip').value    = data.form.zip    || '';
+      document.getElementById('c-street').value = data.form.street || '';
+      document.getElementById('c-city').value   = data.form.city   || '';
+      if (data.form.state) document.getElementById('c-state').value = data.form.state;
+    }
+    if (data.cart?.length) {
+      cart = data.cart;
+      couponApplied = data.couponApplied || false;
+      payMethod = data.payMethod || 'card';
+      updateCartBtn();
+      setPayMethod(payMethod);
+    }
+  } catch {}
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -1260,35 +1291,36 @@ function renderOrderStatus(order) {
     </div>`;
 }
 
-// Verifica se voltou do Mercado Pago
+// Verifica se voltou do Mercado Pago e roteia conforme o status
 function checkReturnFromMP() {
   const params = new URLSearchParams(window.location.search);
-  const orderNum = params.get('order');
   const status = params.get('status');
-  if (!orderNum) return;
-  history.replaceState({ screen: 'status' }, '', '#status');
-  showScreen('status');
-  document.getElementById('order-search-input').value = orderNum;
+  if (!status) return;
+
+  // Limpa a query string da URL sem recarregar a página
+  history.replaceState({}, '', window.location.pathname);
+
   if (status === 'failure') {
-    showToast('Pagamento não aprovado. Tente novamente.');
-    setTimeout(() => searchOrder(), 500);
+    // Usuário voltou sem pagar — restaura formulário e sacola, volta ao checkout
+    restoreCheckoutFromSession();
+    showScreen('checkout');
+    renderOrderSummary();
+    showToast('Pagamento não concluído. Verifique seus dados e tente novamente.');
+    return;
+  }
+
+  // success ou pending → pagamento iniciado, limpa sessão e vai para home
+  sessionStorage.removeItem('checkoutSession');
+  cart = [];
+  couponApplied = false;
+  updateCartBtn();
+  showScreen('home');
+  renderAllGrids();
+
+  if (status === 'success') {
+    showToast('Pagamento aprovado! Você receberá a confirmação por e-mail.');
   } else {
-    if (status === 'success') showToast('Pagamento realizado! Aguardando confirmação...');
-    setTimeout(() => searchOrder(), 500);
-    // Polling: verifica o status a cada 4s por até 40s
-    // aguarda o webhook do MP processar e atualizar o banco
-    let attempts = 0;
-    const poll = setInterval(async () => {
-      attempts++;
-      try {
-        const order = await apiFetch('/api/orders/' + orderNum);
-        if (order.payment_status === 'approved' || attempts >= 10) {
-          clearInterval(poll);
-          if (order.payment_status === 'approved') showToast('Pagamento confirmado!');
-          renderOrderStatus(order);
-        }
-      } catch { clearInterval(poll); }
-    }, 4000);
+    showToast('Boleto/Pix gerado! Verifique seu e-mail para as instruções de pagamento.');
   }
 }
 
@@ -1305,6 +1337,7 @@ async function restoreStock(id) {
     const idx = PRODUCTS.findIndex(x => x.id === updated.id);
     if (idx !== -1) PRODUCTS[idx] = { ...PRODUCTS[idx], stock: updated.stock };
     showToast('Estoque restaurado!');
+    renderAllGrids();
     renderAdminTab('products');
   } catch (err) {
     showToast('Erro: ' + err.message);
@@ -1578,8 +1611,8 @@ document.addEventListener('keydown', e => {
 loadProducts().then(() => {
   // Restaura tela correta após produtos carregarem
   const params = new URLSearchParams(window.location.search);
-  if (params.get('order')) {
-    // Voltou do Mercado Pago — tela de status tem prioridade
+  if (params.get('status')) {
+    // Voltou do Mercado Pago
     checkReturnFromMP();
     return;
   }
