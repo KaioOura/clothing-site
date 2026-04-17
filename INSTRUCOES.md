@@ -1,190 +1,238 @@
-# MAISON·BR — Instruções de Deploy
+# Off Clothing Bath — Guia de Deploy e Operação
 
-## O que você vai precisar (tudo gratuito para começar)
-- Conta no **Railway** (railway.app) — hospedagem do backend e banco de dados
+## O que você vai precisar
+
+- Conta no **GitHub** (github.com) — hospedagem do frontend e controle de versão
+- Conta no **Railway** (railway.app) — hospedagem do backend e banco de dados PostgreSQL
 - Conta no **Mercado Pago** (mercadopago.com.br) — gateway de pagamento
-- Conta no **GitHub** (github.com) — para conectar ao Railway
-- Um editor de texto (VS Code, Notepad++, etc.)
+- Conta no **Resend** (resend.com) — envio de e-mails transacionais
 
 ---
 
-## PASSO 1 — Criar sua conta no Mercado Pago Developers
+## Arquitetura do projeto
+
+```
+Frontend (GitHub Pages)          Backend (Railway)
+─────────────────────            ─────────────────
+kaiooura/clothing-site           Node.js + Express
+index.html (SPA)       ──────▶  PostgreSQL (Railway)
+                                 Mercado Pago API
+                                 Resend API
+```
+
+- **Frontend:** `https://kaiooura.github.io/clothing-site`
+- **Backend:** `https://clothing-site-production.up.railway.app`
+
+---
+
+## PASSO 1 — Configurar o Mercado Pago
 
 1. Acesse https://www.mercadopago.com.br/developers
-2. Faça login com sua conta do Mercado Pago (ou crie uma)
-3. Clique em **"Criar aplicação"**
-4. Dê um nome: `MAISON-BR`
-5. Selecione **"Pagamentos online"** e **"CheckoutPro"**
-6. Clique em **"Criar aplicação"**
-7. Na tela da aplicação, vá em **"Credenciais de produção"**
-8. Copie o **Access Token** (começa com `APP_USR-...`)
-
-⚠️ **Para testes**, use as credenciais de **Sandbox** primeiro.
-As credenciais de sandbox começam com `TEST-`.
+2. Faça login e clique em **"Criar aplicação"**
+3. Nome: `Off Clothing Bath` · Produto: **CheckoutPro** · Clique em **Criar**
+4. Na tela da aplicação, vá em **"Credenciais de teste"** (Sandbox)
+5. Copie o **Access Token** (começa com `TEST-`)
+6. Quando estiver pronto para produção, use **"Credenciais de produção"** (`APP_USR-...`)
 
 ---
 
-## PASSO 2 — Subir o backend no GitHub
+## PASSO 2 — Configurar o Resend (e-mails)
 
-1. Acesse https://github.com e crie uma conta (se ainda não tiver)
-2. Clique em **"New repository"**
-3. Nome: `maison-br-backend`
-4. Deixe como **Public** e clique em **"Create repository"**
-5. No seu computador, instale o Git: https://git-scm.com/downloads
-6. Abra o terminal (Prompt de Comando no Windows) na pasta `backend/`
-7. Execute os comandos abaixo um por um:
+1. Acesse https://resend.com e crie uma conta
+2. Vá em **API Keys** → **Create API Key**
+3. Nome: `off-clothing-bath` · Permissão: **Full Access**
+4. Copie a chave (começa com `re_...`)
 
-```bash
-git init
-git add .
-git commit -m "primeiro commit"
-git branch -M main
-git remote add origin https://github.com/SEU-USUARIO/maison-br-backend.git
-git push -u origin main
-```
-
-> Substitua `SEU-USUARIO` pelo seu usuário do GitHub.
+> Durante testes, e-mails só chegam ao endereço cadastrado no Resend (domínio compartilhado).
+> Para enviar a qualquer e-mail, adicione um domínio próprio no Resend.
 
 ---
 
-## PASSO 3 — Deploy no Railway
+## PASSO 3 — Repositórios no GitHub
 
-1. Acesse https://railway.app e clique em **"Login with GitHub"**
-2. Clique em **"New Project"**
-3. Escolha **"Deploy from GitHub repo"**
-4. Selecione o repositório `maison-br-backend`
-5. Railway vai detectar automaticamente que é Node.js e fazer o deploy
+O projeto usa dois repositórios separados:
 
-### 3.1 — Adicionar banco de dados PostgreSQL
+| Repositório | Conteúdo | URL |
+|---|---|---|
+| `clothing-site` | Frontend (index.html) | github.com/kaiooura/clothing-site |
+| `clothing-site-backend` | Backend (server.js, db.js) | github.com/kaiooura/clothing-site-backend |
 
-1. Dentro do projeto no Railway, clique em **"+ New"**
-2. Escolha **"Database"** → **"PostgreSQL"**
-3. O banco será criado automaticamente
+Ambos devem estar **públicos** (ou usar GitHub Pro para privado com Pages).
 
-### 3.2 — Configurar variáveis de ambiente
+### Ativar GitHub Pages no frontend
 
-1. Clique no serviço do backend (não no banco)
-2. Vá em **"Variables"**
-3. Clique em **"Add Variable"** e adicione cada uma:
+1. Vá em `clothing-site` → **Settings** → **Pages**
+2. Source: **Deploy from a branch** → branch `main` → pasta `/root`
+3. Salve. O site estará em `https://kaiooura.github.io/clothing-site`
+
+---
+
+## PASSO 4 — Deploy do backend no Railway
+
+1. Acesse https://railway.app → **Login with GitHub**
+2. Clique em **New Project** → **Deploy from GitHub repo**
+3. Selecione `clothing-site-backend`
+4. Railway detecta Node.js automaticamente e faz o deploy
+
+### 4.1 — Adicionar PostgreSQL
+
+1. Dentro do projeto, clique em **+ New** → **Database** → **PostgreSQL**
+2. O banco é criado e conectado automaticamente
+
+### 4.2 — Variáveis de ambiente
+
+No serviço do backend → **Variables** → adicione cada variável:
 
 ```
-MP_ACCESS_TOKEN    = APP_USR-SEU-TOKEN-DO-MERCADO-PAGO
-PORT               = 3001
-FRONTEND_URL       = https://SEU-SITE.com
-BACKEND_URL        = https://SEU-APP.railway.app
+MP_ACCESS_TOKEN    = TEST-seu-token-do-mercado-pago
+ADMIN_SECRET       = uma-senha-forte-para-o-admin
 WEBHOOK_SECRET     = qualquer-string-longa-aleatoria
+FRONTEND_URL       = https://kaiooura.github.io/clothing-site
+BACKEND_URL        = https://seu-app.up.railway.app
+RESEND_API_KEY     = re_sua-chave-do-resend
+PORT               = 3001
+DATABASE_URL       = (adicionar via "Add Reference" → PostgreSQL → DATABASE_URL)
 ```
 
-4. Para `DATABASE_URL`: clique em **"Add Reference"**, selecione o PostgreSQL,
-   escolha a variável `DATABASE_URL`. Isso conecta automaticamente.
+> **ADMIN_SECRET** é a senha do painel admin. Guarde bem — não tem recuperação.
 
-### 3.3 — Pegar a URL do backend
+### 4.3 — URL do backend
 
-1. No serviço do backend, vá em **"Settings"**
-2. Em **"Domains"**, clique em **"Generate Domain"**
-3. Você vai receber algo como: `https://maison-br-backend-production.up.railway.app`
-4. Guarde essa URL — você vai precisar dela
+1. No serviço → **Settings** → **Domains** → **Generate Domain**
+2. Copie a URL (ex: `https://clothing-site-production.up.railway.app`)
+3. Atualize a variável `BACKEND_URL` com esse endereço
 
 ---
 
-## PASSO 4 — Configurar o Webhook do Mercado Pago
+## PASSO 5 — Configurar Webhook do Mercado Pago
 
-O webhook é o que faz o Mercado Pago avisar o seu backend quando um pagamento é aprovado.
+O webhook avisa o backend quando um pagamento é processado — **essencial** para criar pedidos.
 
-1. Acesse https://www.mercadopago.com.br/developers/panel
-2. Clique na sua aplicação (`MAISON-BR`)
-3. Vá em **"Webhooks"**
-4. Clique em **"Adicionar"**
-5. URL: `https://SEU-APP.railway.app/webhook/mercadopago`
-6. Eventos: marque **"Pagamentos"**
-7. Salve
-
----
-
-## PASSO 5 — Configurar o frontend
-
-1. Abra o arquivo `frontend/index.html` no seu editor de texto
-2. Procure a linha:
-   ```javascript
-   const API = 'https://SEU-APP.railway.app';
-   ```
-3. Troque pelo endereço real do seu backend (do Passo 3.3)
-4. Procure também:
-   ```javascript
-   const ADMIN_PASS = 'admin123';
-   ```
-5. Troque por uma senha que você vai lembrar
+1. Acesse https://mercadopago.com.br/developers/panel
+2. Abra sua aplicação → **Webhooks** → **Adicionar**
+3. URL: `https://seu-app.up.railway.app/webhook/mercadopago`
+4. Eventos: marque **"Pagamentos"**
+5. Salve e copie o **Webhook Secret** gerado
+6. Atualize a variável `WEBHOOK_SECRET` no Railway
 
 ---
 
-## PASSO 6 — Hospedar o frontend
+## PASSO 6 — Atualizar FRONTEND_URL no Railway
 
-### Opção A: Netlify (mais fácil — recomendado)
-1. Acesse https://netlify.com e crie uma conta com GitHub
-2. Clique em **"Add new site"** → **"Deploy manually"**
-3. Arraste a pasta `frontend/` para a área indicada
-4. Pronto! Você vai receber uma URL como `https://nome-aleatorio.netlify.app`
-5. Use esse endereço como `FRONTEND_URL` nas variáveis do Railway
+Após o GitHub Pages gerar a URL do frontend:
 
-### Opção B: GitHub Pages
-1. Crie um repositório `maison-br-frontend` no GitHub
-2. Suba o arquivo `index.html`
-3. Vá em Settings → Pages → selecione `main` como branch
-4. A URL será: `https://SEU-USUARIO.github.io/maison-br-frontend`
+1. Railway → backend → **Variables**
+2. Atualize `FRONTEND_URL = https://kaiooura.github.io/clothing-site`
+3. O Railway reinicia automaticamente
 
 ---
 
-## PASSO 7 — Atualizar FRONTEND_URL no Railway
+## Como funciona o fluxo de checkout
 
-Agora que o frontend tem um endereço:
-1. Vá no Railway → seu projeto → Variables
-2. Atualize `FRONTEND_URL` com o endereço do Netlify/GitHub Pages
-3. Railway vai reiniciar automaticamente
+```
+Cliente preenche dados → clica "Confirmar e pagar"
+        ↓
+Backend cria uma sessão temporária (sem tocar no estoque)
+        ↓
+Cliente é redirecionado para o Mercado Pago
+        ↓
+┌─────────────────────────────────────────────┐
+│  Voltou sem pagar  │  Formulário e sacola   │
+│  (clicou voltar)   │  são restaurados       │
+├─────────────────────────────────────────────┤
+│  Pagamento         │  Webhook cria pedido + │
+│  aprovado          │  decrementa estoque    │
+├─────────────────────────────────────────────┤
+│  Boleto/Pix        │  Webhook cria pedido   │
+│  pendente          │  + decrementa estoque  │
+├─────────────────────────────────────────────┤
+│  Pagamento         │  Webhook cria pedido   │
+│  recusado          │  como recusado (sem    │
+│                    │  mexer no estoque)     │
+└─────────────────────────────────────────────┘
+        ↓
+Sessão abandonada sem pagamento → limpa automaticamente em 15 min
+Boleto expirado sem pagamento  → estoque restaurado após 4 dias
+```
 
 ---
 
-## Como usar o painel de admin
+## Painel Administrativo
 
-1. Abra o site
-2. Clique em **"⚙ Admin"** no canto superior direito
-3. Digite a senha que você definiu
-4. Na aba **"Produtos"**: adicione, edite ou remova produtos
-5. Na aba **"Pedidos"**: veja todos os pedidos, abra o detalhe de cada um, atualize o status e adicione código de rastreio
+### Acessar
 
-### Status dos pedidos (em ordem)
+1. Abra o site → clique em **Admin** (canto superior direito)
+2. Digite o `ADMIN_SECRET` configurado no Railway
+
+### Produtos
+
+| Campo | Descrição |
+|---|---|
+| Nome | Nome da peça |
+| Subtítulo | Material, cor, etc. |
+| Imagens | URLs diretas (Imgur, Drive público) — uma por linha |
+| Tamanho | Tamanho único da peça (ex: M, 38, PP) |
+| Preço / De | Preço atual e original (se em promoção) |
+| Tag | Rótulo exibido no card (Novo, Sale, Exclusivo...) |
+| Estoque | 0 = esgotado, 1 = disponível (brechó: itens únicos) |
+
+> Se um item aparecer como **Esgotado** incorretamente, use o botão **Restaurar** ao lado do produto no painel.
+
+### Pedidos — Status
+
 | Status | Significado |
-|--------|-------------|
-| Recebido | Pedido foi criado no sistema |
-| Pendente | Aguardando pagamento |
-| Confirmado | Pagamento aprovado pelo Mercado Pago |
-| Despachado | Você enviou para a transportadora |
-| Em trânsito | Pacote a caminho do cliente |
-| Entregue | Pedido entregue ao cliente |
+|---|---|
+| Recebido | Pedido criado |
+| Confirmado | Pagamento aprovado |
+| Despachado | Enviado para transportadora |
+| Em trânsito | A caminho do cliente |
+| Entregue | Concluído |
 
 ---
 
 ## Testando pagamentos (Sandbox)
 
-Para testar sem usar dinheiro real:
-1. Use o Access Token de **Sandbox** (começa com `TEST-`)
-2. No checkout, use os cartões de teste do Mercado Pago:
-   - Aprovado: `5031 4332 1540 6351` · CVV: `123` · Validade: `11/25`
-   - Recusado: `4000 0000 0000 0002`
-3. Para Pix no sandbox, simule o pagamento no painel de developers
+1. Use o Access Token de **Sandbox** (`TEST-...`) no Railway
+2. Cartões de teste do Mercado Pago:
+
+| Cenário | Número | CVV | Validade |
+|---|---|---|---|
+| Aprovado | 5031 4332 1540 6351 | 123 | 11/25 |
+| Recusado | 4000 0000 0000 0002 | 123 | 11/25 |
+
+3. Para Pix/boleto no sandbox: simule o pagamento no painel de developers
 
 ---
 
-## Quando estiver pronta para produção
+## Ir para produção
 
-1. No Mercado Pago, troque para as credenciais de **Produção**
-2. Atualize a variável `MP_ACCESS_TOKEN` no Railway com o token real
-3. Faça um deploy novamente
+1. No Mercado Pago, vá em **Credenciais de produção** e copie o Access Token real
+2. No Railway, atualize `MP_ACCESS_TOKEN` com o token de produção (`APP_USR-...`)
+3. Atualize o `WEBHOOK_SECRET` com o valor gerado pelo MP em produção
+4. Publique o frontend via GitHub Desktop
 
 ---
 
-## Suporte / Dúvidas
+## Manutenção e atualizações
 
-Se travar em algum passo, guarde a mensagem de erro exata e me pergunte.
-As principais fontes de documentação são:
+### Publicar mudanças no frontend
+Abra o **GitHub Desktop** → selecione `clothing-site` → commit + push para `main`.
+O GitHub Pages atualiza automaticamente em ~1 minuto.
+
+### Publicar mudanças no backend
+Abra o **GitHub Desktop** → selecione `clothing-site-backend` → commit + push para `main`.
+O Railway detecta e faz redeploy automaticamente em ~2 minutos.
+
+### Banco de dados
+O banco é gerenciado pelo Railway. As migrações rodam automaticamente ao iniciar o servidor.
+Para acessar o banco diretamente: Railway → PostgreSQL → **Connect** → use o cliente de sua preferência.
+
+---
+
+## Suporte
+
+Se travar em algum passo, guarde a mensagem de erro exata.
+Documentação oficial:
 - Railway: https://docs.railway.app
 - Mercado Pago: https://www.mercadopago.com.br/developers/pt/docs
+- Resend: https://resend.com/docs

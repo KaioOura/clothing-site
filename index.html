@@ -476,6 +476,7 @@ footer{background:var(--dark);padding:60px 48px 32px;}
   <a onclick="navigateSection('sale');closeMobileMenu()">Sale</a>
   <a onclick="navigate('sobre');closeMobileMenu()">Sobre</a>
   <a onclick="navigate('status');closeMobileMenu()">Meu Pedido</a>
+  <a onclick="closeMobileMenu();openLogin()" style="color:var(--text-off);font-size:11px;letter-spacing:.12em;">⚙ Admin</a>
 </div>
 
 <!-- ─── HOME ──────────────────────────────────────────────────────── -->
@@ -1127,14 +1128,6 @@ async function placeOrder() {
   if (!zip || zip.length !== 8) { showToast('CEP inválido — informe os 8 dígitos'); return; }
   if (!cart.length) { showToast('Sua sacola está vazia'); return; }
 
-  const sub  = cart.reduce((a, i) => a + (i.product.old_price || i.product.price) * i.qty, 0);
-  const disc = cart.reduce((a, i) => i.product.old_price ? a + (i.product.old_price - i.product.price) * i.qty : a, 0);
-  const total = sub - disc;
-  const frete = total >= 299 ? 0 : 19.90;
-  const couponDisc = couponApplied ? Math.round(total * 0.1) : 0;
-  const pixDisc    = payMethod === 'pix' ? Math.round((total + frete - couponDisc) * 0.05) : 0;
-  const grand = total + frete - couponDisc - pixDisc;
-
   const phone  = document.getElementById('c-phone').value.trim();
   const street = document.getElementById('c-street').value.trim();
   const city   = document.getElementById('c-city').value.trim();
@@ -1156,10 +1149,8 @@ async function placeOrder() {
     address_street: street,
     address_city:   city,
     address_state:  state,
-    items: cart.map(i => ({ id: i.product.id, name: i.product.name, qty: i.qty, price: i.product.price })),
-    subtotal: sub, discount: disc, shipping: frete,
-    coupon_discount: couponDisc + pixDisc,
-    total: grand,
+    items: cart.map(i => ({ id: i.product.id, qty: i.qty })),
+    coupon_code: couponApplied ? 'OCB10' : null,
     payment_method: payMethod,
   };
 
