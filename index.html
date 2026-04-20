@@ -196,8 +196,7 @@ nav{position:sticky;top:0;z-index:200;background:#fff;border-bottom:1px solid va
 .card-icon{padding:5px 10px;border:1px solid var(--border);border-radius:4px;font-size:11px;font-weight:500;color:var(--text-2);}
 .pix-info{background:var(--bg-2);padding:20px;text-align:center;}
 .pix-info p{font-size:13px;color:var(--text-2);line-height:1.6;}
-.boleto-info{background:var(--bg-2);padding:20px;}
-.boleto-info p{font-size:13px;color:var(--text-2);line-height:1.6;}
+
 .order-summary{background:var(--bg-2);padding:24px;position:sticky;top:80px;}
 .order-summary h3{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-size:20px;font-weight:700;text-transform:uppercase;margin-bottom:20px;letter-spacing:.04em;}
 .os-item{display:grid;grid-template-columns:52px 1fr auto;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);}
@@ -214,6 +213,39 @@ nav{position:sticky;top:0;z-index:200;background:#fff;border-bottom:1px solid va
 .btn-place{width:100%;padding:15px;background:var(--dark);color:#fff;border:none;border-radius:30px;font-size:14px;font-weight:500;cursor:pointer;transition:background .2s;margin-top:16px;display:flex;align-items:center;justify-content:center;gap:10px;font-family:inherit;}
 .btn-place:hover{background:var(--text-2);}
 .btn-place:disabled{opacity:.5;cursor:not-allowed;}
+
+/* ─── CHECKOUT CONFIRM MODAL ─────────────────────────────── */
+.confirm-overlay{display:none;position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.5);align-items:center;justify-content:center;}
+.confirm-overlay.open{display:flex;}
+.confirm-modal{background:#fff;width:90%;max-width:520px;max-height:90vh;overflow-y:auto;padding:32px;}
+.confirm-modal h3{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-size:22px;font-weight:700;text-transform:uppercase;margin-bottom:24px;letter-spacing:.04em;}
+.confirm-section{margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--border);}
+.confirm-section:last-of-type{border-bottom:none;margin-bottom:0;}
+.confirm-label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-2);font-weight:500;margin-bottom:8px;}
+.confirm-value{font-size:14px;color:var(--text);line-height:1.6;}
+.confirm-item{display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-bottom:1px solid var(--border);}
+.confirm-item:last-child{border-bottom:none;}
+.confirm-total-row{display:flex;justify-content:space-between;font-size:14px;font-weight:500;padding-top:10px;margin-top:4px;border-top:1px solid var(--border);}
+.confirm-actions{display:flex;gap:12px;margin-top:24px;}
+.confirm-actions .btn-cancel-confirm{flex:1;padding:14px;background:none;border:1.5px solid var(--border);border-radius:30px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:border-color .2s;}
+.confirm-actions .btn-cancel-confirm:hover{border-color:var(--dark);}
+.confirm-actions .btn-confirm-pay{flex:2;padding:14px;background:var(--dark);color:#fff;border:none;border-radius:30px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;transition:background .2s;}
+.confirm-actions .btn-confirm-pay:hover{background:var(--text-2);}
+.confirm-actions .btn-confirm-pay:disabled{opacity:.5;cursor:not-allowed;}
+/* ─── ESGOTADO NO CHECKOUT ───────────────────────────────── */
+.stock-alert-overlay{display:none;position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.5);align-items:center;justify-content:center;}
+.stock-alert-overlay.open{display:flex;}
+.stock-alert-box{background:#fff;width:90%;max-width:460px;padding:36px 32px;text-align:center;}
+.stock-alert-box h3{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-size:24px;font-weight:700;text-transform:uppercase;margin-bottom:12px;letter-spacing:.04em;}
+.stock-alert-box p{font-size:14px;color:var(--text-2);line-height:1.6;margin-bottom:20px;}
+.stock-alert-removed{background:var(--bg-2);padding:14px 16px;margin-bottom:24px;text-align:left;}
+.stock-alert-removed-item{font-size:13px;padding:6px 0;border-bottom:1px solid var(--border);color:var(--red);}
+.stock-alert-removed-item:last-child{border-bottom:none;}
+.stock-alert-actions{display:flex;flex-direction:column;gap:10px;}
+.stock-alert-actions .btn-continue-cart{padding:14px;background:var(--dark);color:#fff;border:none;border-radius:30px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;transition:background .2s;}
+.stock-alert-actions .btn-continue-cart:hover{background:var(--text-2);}
+.stock-alert-actions .btn-go-home{padding:12px;background:none;border:1.5px solid var(--border);border-radius:30px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:border-color .2s;}
+.stock-alert-actions .btn-go-home:hover{border-color:var(--dark);}
 
 /* ─── STATUS DO PEDIDO ───────────────────────────────────── */
 .status-page{padding:60px 48px;max-width:680px;margin:0 auto;}
@@ -426,6 +458,9 @@ footer{background:var(--dark);padding:60px 48px 32px;}
   .order-summary{position:static;}
   .checkout-left h2{font-size:22px;margin-bottom:24px;}
   .form-row{grid-template-columns:1fr;}
+  .confirm-modal{padding:24px 20px;}
+  .stock-alert-box{padding:28px 20px;}
+  .confirm-actions{flex-direction:column;}
 
   /* Status do pedido */
   .status-page{padding:40px 20px;}
@@ -653,7 +688,7 @@ footer{background:var(--dark);padding:60px 48px 32px;}
           <div class="form-row full"><div class="field"><label>Nome completo *</label><input type="text" id="c-name" placeholder="Maria Silva"></div></div>
           <div class="form-row">
             <div class="field"><label>E-mail *</label><input type="email" id="c-email" placeholder="maria@email.com"></div>
-            <div class="field"><label>Telefone</label><input type="tel" id="c-phone" placeholder="(11) 99999-9999"></div>
+            <div class="field"><label>Telefone *</label><input type="tel" id="c-phone" placeholder="(11) 99999-9999"></div>
           </div>
         </div>
         <div class="checkout-section">
@@ -667,22 +702,20 @@ footer{background:var(--dark);padding:60px 48px 32px;}
               </select>
             </div>
           </div>
-          <div class="form-row full"><div class="field"><label>Endereço</label><input type="text" id="c-street" placeholder="Rua das Flores, 123 — Apto 42"></div></div>
-          <div class="form-row full"><div class="field"><label>Cidade</label><input type="text" id="c-city" placeholder="São Paulo"></div></div>
+          <div class="form-row full"><div class="field"><label>Endereço *</label><input type="text" id="c-street" placeholder="Rua das Flores, 123 — Apto 42"></div></div>
+          <div class="form-row full"><div class="field"><label>Cidade *</label><input type="text" id="c-city" placeholder="São Paulo"></div></div>
         </div>
         <div class="checkout-section">
           <h3>Forma de pagamento</h3>
           <div class="pay-methods">
             <div class="pay-method active" id="pm-card" onclick="setPayMethod('card')">Cartão</div>
             <div class="pay-method" id="pm-pix" onclick="setPayMethod('pix')">Pix</div>
-            <div class="pay-method" id="pm-boleto" onclick="setPayMethod('boleto')">Boleto</div>
           </div>
           <div id="pay-card-area">
             <div class="card-icons"><span class="card-icon">VISA</span><span class="card-icon">MC</span><span class="card-icon">ELO</span><span class="card-icon">AMEX</span></div>
             <p style="font-size:13px;color:var(--muted);margin-bottom:12px">Você será redirecionada ao Mercado Pago para inserir os dados do cartão com segurança.</p>
           </div>
           <div id="pay-pix-area" style="display:none"><div class="pix-info"><p>Após confirmar, você receberá um QR Code Pix válido por 30 minutos.<br><br><strong style="color:#27500A">5% de desconto</strong> para pagamentos via Pix!</p></div></div>
-          <div id="pay-boleto-area" style="display:none"><div class="boleto-info"><p>O boleto será gerado após a confirmação. Vencimento em 3 dias úteis.</p></div></div>
         </div>
       </div>
       <div>
@@ -701,6 +734,44 @@ footer{background:var(--dark);padding:60px 48px 32px;}
         </div>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- ─── MODAL: CONFIRMAR PEDIDO ─────────────────────────────────────── -->
+<div id="confirm-overlay" class="confirm-overlay" onclick="closeConfirmModal(event)">
+  <div class="confirm-modal">
+    <h3>Confirmar pedido</h3>
+    <div class="confirm-section">
+      <div class="confirm-label">Itens do pedido</div>
+      <div id="confirm-items"></div>
+      <div class="confirm-total-row"><span>Total</span><span id="confirm-total"></span></div>
+    </div>
+    <div class="confirm-section">
+      <div class="confirm-label">Seus dados</div>
+      <div id="confirm-personal" class="confirm-value"></div>
+    </div>
+    <div class="confirm-section">
+      <div class="confirm-label">Endereço de entrega</div>
+      <div id="confirm-address" class="confirm-value"></div>
+    </div>
+    <div class="confirm-section">
+      <div class="confirm-label">Forma de pagamento</div>
+      <div id="confirm-payment" class="confirm-value"></div>
+    </div>
+    <div class="confirm-actions">
+      <button class="btn-cancel-confirm" onclick="closeConfirmModal()">Editar dados</button>
+      <button class="btn-confirm-pay" id="btn-confirm-pay" onclick="submitOrder()">Confirmar e pagar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── MODAL: PRODUTO ESGOTADO NO CHECKOUT ──────────────────────────── -->
+<div id="stock-alert-overlay" class="stock-alert-overlay">
+  <div class="stock-alert-box">
+    <h3>Produto esgotado</h3>
+    <p id="stock-alert-msg"></p>
+    <div id="stock-alert-removed" class="stock-alert-removed"></div>
+    <div class="stock-alert-actions" id="stock-alert-actions"></div>
   </div>
 </div>
 
@@ -775,15 +846,75 @@ footer{background:var(--dark);padding:60px 48px 32px;}
 <!-- ─── JAVASCRIPT ───────────────────────────────────────────────────── -->
 <script>
 // ════════════════════════════════════════════════════════════════
-// NOME DA MARCA — altere aqui para mudar em todo o site
+// MAPA DO SISTEMA — Off Closet Bath
 // ════════════════════════════════════════════════════════════════
-const BRAND_NAME = 'Off Clothing Bath';
-// ════════════════════════════════════════════════════════════════
-// CONFIGURAÇÃO — troque pela URL do seu backend no Railway
-// ════════════════════════════════════════════════════════════════
-const API = 'https://clothing-site-production.up.railway.app';
-// ════════════════════════════════════════════════════════════════
+// STACK
+//   Frontend : este arquivo (index.html) — Netlify (arrastar pasta)
+//   Backend  : server.js — Node/Express — Railway (repo: KaioOura/clothing-site, branch main)
+//   DB       : PostgreSQL — Railway (mesmo projeto, env production)
+//   Pagamento: Mercado Pago Checkout Pro — redireciona usuário para o MP e volta com ?status=
+//   E-mail   : Resend (domínio de teste — só entrega ao e-mail da conta Resend)
+//
+// FLUXO DE COMPRA (passo a passo)
+//   1. loadProducts()          — GET /api/products → popula PRODUCTS[]
+//   2. quickAdd() / openProduct() — adiciona ao cart[]
+//   3. goCheckout()            — abre tela checkout, renderiza resumo
+//   4. placeOrder()            — valida campos obrigatórios
+//   5. checkStockAndProceed()  — GET /api/products (estoque fresco, evita race condition)
+//   6. showCheckoutConfirmation() — modal de revisão antes de pagar
+//   7. submitOrder()           — POST /api/checkout/session → redireciona para MP
+//   8. [MP processa pagamento]
+//   9. checkReturnFromMP()     — lê ?status= na URL de retorno e roteia
+//  10. [Webhook no backend]    — MP notifica server.js → atualiza pedido no DB
+//
+// RETORNO DO MP (?status=)
+//   success  → APRO — pagamento aprovado
+//   failure  → OTHE/CALL/FUND/SECU/EXPI/FORM — recusado (MP já exibiu o motivo)
+//   pending  → CONT — cartão em análise bancária (≠ pix pendente)
+//
+// MÉTODOS DE PAGAMENTO ATIVOS: card, pix  (boleto removido)
+//
+// ENDPOINTS CONSUMIDOS PELO FRONTEND
+//   GET  /api/products                          — lista produtos (com estoque)
+//   POST /api/checkout/session                  — cria pedido + preferência MP
+//   GET  /api/orders/:orderNumber               — consulta status do pedido
+//   POST /api/admin/login                       — autenticação admin
+//   GET  /api/admin/orders                      — lista pedidos (admin)
+//   PUT  /api/products/:id                      — edita produto (admin)
+//   POST /api/products                          — cria produto (admin)
+//   DELETE /api/products/:id                    — remove produto (admin)
+//   POST /api/products/:id/restore-stock        — restaura estoque para 1 (admin)
+//   PUT  /api/admin/orders/:num/status          — atualiza status do pedido (admin)
+//
 // ESTADO GLOBAL
+//   PRODUCTS[]       — array de produtos carregados do backend
+//   cart[]           — itens na sacola: [{ product, qty }]
+//   selectedProduct  — produto aberto na tela de detalhe
+//   payMethod        — 'card' | 'pix'
+//   couponApplied    — boolean (cupom OCB10 = 10% off)
+//   adminToken       — JWT do admin (sessionStorage)
+//
+// SEÇÕES DESTE ARQUIVO
+//   [CSS]          ~linha 22   — reset, variáveis, componentes por tela
+//   [HTML]         ~linha 480  — screens: home, produto, checkout, modais, status, admin
+//   [JS CONFIG]    ~linha 870  — BRAND_NAME, API URL
+//   [JS ESTADO]    ~linha 875  — variáveis globais
+//   [JS NAV]       ~linha 890  — navigate(), showScreen(), History API, popstate
+//   [JS API]       ~linha 950  — apiFetch(), loadProducts()
+//   [JS PRODUTOS]  ~linha 990  — renderCard(), openProduct(), sacola, quickAdd
+//   [JS CHECKOUT]  ~linha 1155 — placeOrder() → checkStockAndProceed() → confirmação → submitOrder()
+//   [JS MP RETURN] ~linha 1490 — checkReturnFromMP() — roteamento pós-pagamento
+//   [JS STATUS]    ~linha 1400 — searchOrder(), renderOrderStatus()
+//   [JS ADMIN]     ~linha 1525 — login, CRUD produtos, gestão pedidos
+// ════════════════════════════════════════════════════════════════
+
+// ── NOME DA MARCA — altere aqui para mudar em todo o site ────────
+const BRAND_NAME = 'Off Clothing Bath';
+// ── CONFIGURAÇÃO — URL do backend (Railway) ──────────────────────
+const API = 'https://clothing-site-production.up.railway.app';
+
+// ════════════════════════════════════════════════════════════════
+// [JS ESTADO] VARIÁVEIS GLOBAIS
 // ════════════════════════════════════════════════════════════════
 let adminToken = sessionStorage.getItem('adminToken') || null;
 let PRODUCTS = [];
@@ -806,7 +937,7 @@ let couponApplied = false;
 let currentAdminTab = 'products';
 
 // ════════════════════════════════════════════════════════════════
-// HELPERS
+// [JS NAV] NAVEGAÇÃO & HELPERS
 // ════════════════════════════════════════════════════════════════
 const fmt = v => 'R$ ' + Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
@@ -872,7 +1003,7 @@ function showToast(msg) {
 }
 
 // ════════════════════════════════════════════════════════════════
-// API CALLS
+// [JS API] API CALLS — apiFetch wrapper + loadProducts
 // ════════════════════════════════════════════════════════════════
 async function apiFetch(path, options = {}) {
   const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
@@ -913,7 +1044,7 @@ function getDemoProducts() {
 }
 
 // ════════════════════════════════════════════════════════════════
-// RENDERIZAÇÃO DE PRODUTOS
+// [JS PRODUTOS] RENDERIZAÇÃO DE PRODUTOS — renderCard, openProduct, sacola
 // ════════════════════════════════════════════════════════════════
 function renderCard(p) {
   const imgs = (p.images || '').split('\n').map(u => u.trim()).filter(u => u.startsWith('http'));
@@ -1076,7 +1207,7 @@ function renderCartPanel() {
 }
 
 // ════════════════════════════════════════════════════════════════
-// CHECKOUT
+// [JS CHECKOUT] CHECKOUT — goCheckout → placeOrder → checkStockAndProceed → showCheckoutConfirmation → submitOrder
 // ════════════════════════════════════════════════════════════════
 function goCheckout() { closeCart(); renderOrderSummary(); navigate('checkout'); }
 
@@ -1106,7 +1237,8 @@ function renderOrderSummary() {
 function setPayMethod(m) {
   payMethod = m;
   ['card', 'pix', 'boleto'].forEach(x => {
-    document.getElementById('pm-' + x).classList.toggle('active', x === m);
+    const btn = document.getElementById('pm-' + x);
+    if (btn) btn.classList.toggle('active', x === m);
     const a = document.getElementById('pay-' + x + '-area');
     if (a) a.style.display = x === m ? 'block' : 'none';
   });
@@ -1119,21 +1251,142 @@ function applyCoupon() {
   else showToast('Cupom inválido');
 }
 
-async function placeOrder() {
-  const name  = document.getElementById('c-name').value.trim();
-  const email = document.getElementById('c-email').value.trim();
-  const zip   = document.getElementById('c-zip').value.trim().replace(/\D/g, '');
-  if (!name)  { showToast('Preencha seu nome'); return; }
+function placeOrder() {
+  const name   = document.getElementById('c-name').value.trim();
+  const email  = document.getElementById('c-email').value.trim();
+  const phone  = document.getElementById('c-phone').value.trim();
+  const zip    = document.getElementById('c-zip').value.trim().replace(/\D/g, '');
+  const street = document.getElementById('c-street').value.trim();
+  const city   = document.getElementById('c-city').value.trim();
+
+  if (!name)   { showToast('Preencha seu nome'); return; }
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showToast('E-mail inválido'); return; }
+  const phoneDigits = phone.replace(/\D/g, '');
+  if (!phoneDigits || phoneDigits.length < 10 || phoneDigits.length > 11) { showToast('Telefone inválido — informe DDD + número'); return; }
   if (!zip || zip.length !== 8) { showToast('CEP inválido — informe os 8 dígitos'); return; }
+  if (!street) { showToast('Preencha o endereço de entrega'); return; }
+  if (!city)   { showToast('Preencha a cidade'); return; }
   if (!cart.length) { showToast('Sua sacola está vazia'); return; }
 
+  checkStockAndProceed();
+}
+
+async function checkStockAndProceed() {
+  showLoading('Verificando disponibilidade...');
+  try {
+    const freshProducts = await apiFetch('/api/products');
+    hideLoading();
+
+    const outOfStock = [];
+    cart = cart.filter(item => {
+      const fresh = freshProducts.find(p => p.id === item.product.id);
+      if (!fresh || Number(fresh.stock) === 0) {
+        outOfStock.push(item.product.name);
+        return false;
+      }
+      // atualiza dados do produto na sacola com info fresca
+      item.product = { ...item.product, stock: fresh.stock };
+      return true;
+    });
+
+    // atualiza PRODUCTS com dados frescos
+    freshProducts.forEach(fp => {
+      const idx = PRODUCTS.findIndex(p => p.id === fp.id);
+      if (idx !== -1) PRODUCTS[idx] = fp;
+    });
+
+    if (outOfStock.length > 0) {
+      updateCartBtn();
+      showStockAlert(outOfStock);
+      return;
+    }
+
+    showCheckoutConfirmation();
+  } catch {
+    hideLoading();
+    // sem conexão com backend — prossegue sem checar
+    showCheckoutConfirmation();
+  }
+}
+
+function showStockAlert(removedNames) {
+  const msg = document.getElementById('stock-alert-msg');
+  const removed = document.getElementById('stock-alert-removed');
+  const actions = document.getElementById('stock-alert-actions');
+
+  msg.textContent = removedNames.length === 1
+    ? `"${removedNames[0]}" foi vendido para outra pessoa e não está mais disponível. Ele foi removido da sua sacola.`
+    : `${removedNames.length} itens foram esgotados e removidos da sua sacola.`;
+
+  removed.innerHTML = removedNames.map(n => `<div class="stock-alert-removed-item">${esc(n)} — Esgotado</div>`).join('');
+
+  if (cart.length > 0) {
+    actions.innerHTML = `
+      <button class="btn-continue-cart" onclick="closeStockAlert();showCheckoutConfirmation()">Continuar com os itens restantes</button>
+      <button class="btn-go-home" onclick="closeStockAlert();goHome()">Voltar para a loja</button>`;
+  } else {
+    actions.innerHTML = `<button class="btn-go-home" onclick="closeStockAlert();goHome()">Voltar para a loja</button>`;
+  }
+
+  document.getElementById('stock-alert-overlay').classList.add('open');
+}
+
+function closeStockAlert() {
+  document.getElementById('stock-alert-overlay').classList.remove('open');
+}
+
+function showCheckoutConfirmation() {
+  const name   = document.getElementById('c-name').value.trim();
+  const email  = document.getElementById('c-email').value.trim();
+  const phone  = document.getElementById('c-phone').value.trim();
+  const zip    = document.getElementById('c-zip').value.trim();
+  const street = document.getElementById('c-street').value.trim();
+  const city   = document.getElementById('c-city').value.trim();
+  const state  = document.getElementById('c-state').value;
+
+  // Itens
+  document.getElementById('confirm-items').innerHTML = cart.map(i =>
+    `<div class="confirm-item"><span>${esc(i.product.name)} × ${i.qty}</span><span>${fmt(i.product.price * i.qty)}</span></div>`
+  ).join('');
+
+  // Total (reusar cálculo do renderOrderSummary)
+  const sub = cart.reduce((a, i) => a + (i.product.old_price || i.product.price) * i.qty, 0);
+  const disc = cart.reduce((a, i) => i.product.old_price ? a + (i.product.old_price - i.product.price) * i.qty : a, 0);
+  const total = sub - disc;
+  const frete = total >= 299 ? 0 : 19.90;
+  const couponDisc = couponApplied ? Math.round(total * 0.1) : 0;
+  const pixDisc = payMethod === 'pix' ? Math.round((total + frete - couponDisc) * 0.05) : 0;
+  const grand = total + frete - couponDisc - pixDisc;
+  document.getElementById('confirm-total').textContent = fmt(grand);
+
+  // Dados pessoais
+  document.getElementById('confirm-personal').innerHTML = `${esc(name)}<br>${esc(email)}<br>${esc(phone)}`;
+
+  // Endereço
+  document.getElementById('confirm-address').innerHTML = `${esc(street)}<br>${esc(city)} / ${esc(state)}<br>CEP ${esc(zip)}`;
+
+  // Pagamento
+  const pmLabel = { card: 'Cartão de crédito (via Mercado Pago)', pix: 'Pix (5% de desconto)', boleto: 'Boleto bancário' };
+  document.getElementById('confirm-payment').textContent = pmLabel[payMethod] || payMethod;
+
+  document.getElementById('btn-confirm-pay').disabled = false;
+  document.getElementById('btn-confirm-pay').textContent = 'Confirmar e pagar';
+  document.getElementById('confirm-overlay').classList.add('open');
+}
+
+function closeConfirmModal(event) {
+  if (event && event.target !== document.getElementById('confirm-overlay')) return;
+  document.getElementById('confirm-overlay').classList.remove('open');
+}
+
+async function submitOrder() {
+  const name   = document.getElementById('c-name').value.trim();
+  const email  = document.getElementById('c-email').value.trim();
   const phone  = document.getElementById('c-phone').value.trim();
   const street = document.getElementById('c-street').value.trim();
   const city   = document.getElementById('c-city').value.trim();
   const state  = document.getElementById('c-state').value;
 
-  // Salva dados do checkout no sessionStorage para restaurar caso o usuário volte do MP
   sessionStorage.setItem('checkoutSession', JSON.stringify({
     form: { name, email, phone, zip: document.getElementById('c-zip').value.trim(), street, city, state },
     cart: JSON.parse(JSON.stringify(cart)),
@@ -1154,9 +1407,9 @@ async function placeOrder() {
     payment_method: payMethod,
   };
 
-  const btn = document.getElementById('btn-place');
+  const btn = document.getElementById('btn-confirm-pay');
   btn.disabled = true;
-  document.getElementById('btn-place-text').textContent = 'Preparando pagamento...';
+  btn.textContent = 'Preparando pagamento...';
   showLoading('Preparando pagamento...');
 
   try {
@@ -1166,7 +1419,7 @@ async function placeOrder() {
   } catch (err) {
     hideLoading();
     btn.disabled = false;
-    document.getElementById('btn-place-text').textContent = 'Confirmar e pagar';
+    btn.textContent = 'Confirmar e pagar';
     showToast('Erro ao iniciar pagamento: ' + err.message);
   }
 }
@@ -1196,7 +1449,7 @@ function restoreCheckoutFromSession() {
 }
 
 // ════════════════════════════════════════════════════════════════
-// STATUS DO PEDIDO
+// [JS STATUS] STATUS DO PEDIDO — searchOrder, renderOrderStatus
 // ════════════════════════════════════════════════════════════════
 const ORDER_STEPS = [
   { key: 'received',   label: 'Pedido recebido',             icon: '📥' },
@@ -1282,6 +1535,12 @@ function renderOrderStatus(order) {
     </div>`;
 }
 
+// ════════════════════════════════════════════════════════════════
+// [JS MP RETURN] RETORNO DO MERCADO PAGO
+// Chamado na inicialização. Lê ?status= na URL e roteia:
+//   success → APRO (aprovado)   | failure → OTHE/CALL/FUND/SECU/EXPI/FORM (recusado)
+//   pending → CONT (cartão em análise bancária) | pending → Pix aguardando pagamento
+// ════════════════════════════════════════════════════════════════
 // Verifica se voltou do Mercado Pago e roteia conforme o status
 function checkReturnFromMP() {
   const params = new URLSearchParams(window.location.search);
@@ -1292,15 +1551,20 @@ function checkReturnFromMP() {
   history.replaceState({}, '', window.location.pathname);
 
   if (status === 'failure') {
-    // Usuário voltou sem pagar — restaura formulário e sacola, volta ao checkout
+    // Todos os códigos de rejeição do MP (OTHE, CALL, FUND, SECU, EXPI, FORM) chegam aqui.
+    // O MP já exibiu o motivo específico na tela dele antes de redirecionar.
     restoreCheckoutFromSession();
     showScreen('checkout');
     renderOrderSummary();
-    showToast('Pagamento não concluído. Verifique seus dados e tente novamente.');
+    showToast('Pagamento recusado. Tente novamente ou use outro cartão.');
     return;
   }
 
-  // success ou pending → pagamento iniciado, limpa sessão e vai para home
+  // APRO → status=success | CONT (cartão em análise) → status=pending
+  // Lê payMethod antes de limpar a sessão para exibir mensagem correta no caso CONT.
+  const savedSession = sessionStorage.getItem('checkoutSession');
+  const savedMethod = savedSession ? (JSON.parse(savedSession).payMethod || 'card') : 'card';
+
   sessionStorage.removeItem('checkoutSession');
   cart = [];
   couponApplied = false;
@@ -1311,12 +1575,17 @@ function checkReturnFromMP() {
   if (status === 'success') {
     showToast('Pagamento aprovado! Você receberá a confirmação por e-mail.');
   } else {
-    showToast('Boleto/Pix gerado! Verifique seu e-mail para as instruções de pagamento.');
+    // CONT: banco não respondeu em tempo real — pagamento em análise (não é boleto/pix).
+    if (savedMethod === 'card') {
+      showToast('Pagamento em análise pelo banco. Acompanhe pelo número do pedido recebido por e-mail.');
+    } else {
+      showToast('Pix gerado! Verifique seu e-mail para as instruções de pagamento.');
+    }
   }
 }
 
 // ════════════════════════════════════════════════════════════════
-// ADMIN — LOGIN
+// [JS ADMIN] ADMIN — login, CRUD produtos, gestão de pedidos
 // ════════════════════════════════════════════════════════════════
 function openLogin() { document.getElementById('login-pw').value = ''; document.getElementById('login-err').style.display = 'none'; document.getElementById('login-overlay').classList.add('open'); }
 function closeLogin() { document.getElementById('login-overlay').classList.remove('open'); }
