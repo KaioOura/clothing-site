@@ -952,7 +952,10 @@ function showScreen(id) {
 // Navegação com suporte ao botão voltar do browser
 function navigate(screenId, pushState = true) {
   showScreen(screenId);
-  if (screenId === 'home') renderAllGrids();
+  if (screenId === 'home') {
+    renderAllGrids();        // exibe imediatamente com dados em memória
+    loadProducts();          // atualiza em background e re-renderiza ao concluir
+  }
   if (pushState) {
     const url = screenId === 'home' ? window.location.pathname : '#' + screenId;
     history.pushState({ screen: screenId }, '', url);
@@ -984,7 +987,7 @@ window.addEventListener('popstate', (e) => {
     if (p) { openProduct(p.id); return; }
   }
   showScreen(screen);
-  if (screen === 'home') renderAllGrids();
+  if (screen === 'home') { renderAllGrids(); loadProducts(); }
 });
 
 function showLoading(msg = 'Processando...') {
