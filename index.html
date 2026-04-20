@@ -1030,10 +1030,33 @@ async function loadProducts() {
   try {
     PRODUCTS = await apiFetch('/api/products');
     renderAllGrids();
+    syncOpenProductPage();
   } catch (e) {
     console.warn('Backend offline — usando produtos de demonstração');
     PRODUCTS = getDemoProducts();
     renderAllGrids();
+  }
+}
+
+// Atualiza o botão da página de produto aberta se o estoque mudou desde a última renderização.
+// Chamado após todo loadProducts() para manter a tela de produto em sincronia com o backend.
+function syncOpenProductPage() {
+  if (!selectedProduct) return;
+  const fresh = PRODUCTS.find(p => p.id === selectedProduct.id);
+  if (!fresh) return;
+  selectedProduct = fresh;
+  const btnAdd = document.getElementById('btn-add-cart-prod');
+  if (!btnAdd) return;
+  if (Number(fresh.stock) === 0) {
+    btnAdd.textContent = 'Esgotado';
+    btnAdd.disabled = true;
+    btnAdd.style.opacity = '0.5';
+    btnAdd.style.cursor = 'not-allowed';
+  } else {
+    btnAdd.textContent = 'Adicionar à sacola';
+    btnAdd.disabled = false;
+    btnAdd.style.opacity = '';
+    btnAdd.style.cursor = '';
   }
 }
 
@@ -1145,6 +1168,10 @@ function openProduct(id) {
 
   showScreen('product');
   history.pushState({ screen: 'product', productId: p.id }, '', '#product/' + p.id);
+
+  // Busca estoque fresco em background. Se mudou desde que a página abriu, syncOpenProductPage()
+  // atualiza o botão antes do usuário clicar em "Adicionar".
+  loadProducts();
 }
 
 function selectThumb(i, t, src, fallback, bg) {
@@ -1893,6 +1920,12 @@ loadProducts().then(() => {
   } else {
     history.replaceState({ screen: 'home' }, '', window.location.pathname);
   }
+});
+
+// Quando o usuário volta para a aba (de outra aba ou do app do banco após pagamento),
+// recarrega produtos para que home e página de produto reflitam estoque atual.
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) loadProducts();
 });
 </script>
 </body>
