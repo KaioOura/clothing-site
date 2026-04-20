@@ -300,7 +300,7 @@ nav{position:sticky;top:0;z-index:200;background:#fff;border-bottom:1px solid va
 .admin-tab{padding:14px 24px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;color:var(--text-2);border-bottom:2px solid transparent;background:none;border-top:none;border-left:none;border-right:none;font-family:inherit;font-weight:500;transition:all .2s;}
 .admin-tab.active{color:var(--text);border-bottom-color:var(--dark);}
 .admin-tab:hover{color:var(--text);}
-.admin-body{overflow-y:auto;padding:24px 28px;flex:1;}
+.admin-body{overflow-y:auto;padding:24px 28px;flex:1;min-height:0;}
 .admin-product-list{display:flex;flex-direction:column;gap:8px;margin-bottom:24px;}
 .admin-prod-row{display:grid;grid-template-columns:48px 1fr auto auto auto;gap:12px;align-items:center;padding:14px 16px;background:var(--bg-2);}
 .admin-restore-btn{padding:6px 14px;background:none;border:1.5px solid var(--green);border-radius:30px;font-size:12px;font-weight:500;cursor:pointer;color:var(--green);font-family:inherit;white-space:nowrap;}
@@ -385,6 +385,18 @@ footer{background:var(--dark);padding:60px 48px 32px;}
 .footer-social a{font-size:12px;color:rgba(255,255,255,.4);text-decoration:none;cursor:pointer;transition:color .2s;}
 .footer-social a:hover{color:#fff;}
 
+/* ─── SCROLLBARS ────────────────────────────────────────────── */
+.admin-body,.cart-items,.confirm-modal{scrollbar-width:thin;scrollbar-color:var(--border) transparent;overscroll-behavior:contain;}
+.admin-body::-webkit-scrollbar,.cart-items::-webkit-scrollbar,.confirm-modal::-webkit-scrollbar{width:4px;}
+.admin-body::-webkit-scrollbar-track,.cart-items::-webkit-scrollbar-track,.confirm-modal::-webkit-scrollbar-track{background:transparent;}
+.admin-body::-webkit-scrollbar-thumb,.cart-items::-webkit-scrollbar-thumb,.confirm-modal::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.admin-body::-webkit-scrollbar-thumb:hover,.cart-items::-webkit-scrollbar-thumb:hover,.confirm-modal::-webkit-scrollbar-thumb:hover{background:var(--border-dark);}
+.orders-table-wrap{scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
+.orders-table-wrap::-webkit-scrollbar{height:4px;}
+.orders-table-wrap::-webkit-scrollbar-track{background:transparent;}
+.orders-table-wrap::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.orders-table-wrap::-webkit-scrollbar-thumb:hover{background:var(--border-dark);}
+
 /* ─── LOADING / TOAST ────────────────────────────────────── */
 .loading-overlay{display:none;position:fixed;inset:0;z-index:1000;background:rgba(17,17,17,.6);align-items:center;justify-content:center;}
 .loading-overlay.open{display:flex;}
@@ -399,7 +411,7 @@ footer{background:var(--dark);padding:60px 48px 32px;}
 /* ─── HAMBURGUER (mobile) ────────────────────────────────── */
 .hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:4px;}
 .hamburger span{display:block;width:22px;height:2px;background:var(--dark);border-radius:1px;transition:all .25s;}
-.nav-mobile-menu{display:none;position:absolute;top:60px;left:0;right:0;background:var(--bg);border-bottom:1px solid var(--border);z-index:199;padding:12px 0;}
+.nav-mobile-menu{display:none;position:fixed;top:60px;left:0;right:0;background:var(--bg);border-bottom:1px solid var(--border);z-index:199;padding:12px 0;}
 .nav-mobile-menu.open{display:flex;flex-direction:column;}
 .nav-mobile-menu a{padding:13px 24px;font-size:13px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--text-2);text-decoration:none;cursor:pointer;transition:color .2s;border-bottom:1px solid var(--border);}
 .nav-mobile-menu a:last-child{border-bottom:none;}
@@ -450,7 +462,10 @@ footer{background:var(--dark);padding:60px 48px 32px;}
   .info-values{grid-template-columns:1fr;gap:14px;margin:28px 0;}
 
   /* Carrinho */
-  .cart-panel{width:100vw;}
+  .cart-panel{width:100vw;max-width:100vw;}
+  .cart-hdr{padding:20px 20px;}
+  .cart-items{padding:16px 20px;}
+  .cart-footer{padding:16px 20px;padding-bottom:max(16px,env(safe-area-inset-bottom));}
 
   /* Checkout */
   .checkout-page{padding:24px 20px;}
@@ -467,11 +482,31 @@ footer{background:var(--dark);padding:60px 48px 32px;}
   .status-page h2{font-size:24px;}
 
   /* Admin */
-  .admin-modal{width:100%;max-width:100%;max-height:100vh;border-radius:0;}
+  .admin-overlay.open{align-items:stretch;}
+  .admin-modal{width:100%;max-width:100%;height:100%;max-height:100%;border-radius:0;}
+  .admin-body{padding:16px 14px;}
   .aform-grid{grid-template-columns:1fr;}
   .aod-grid{grid-template-columns:1fr;}
-  .admin-prod-row{grid-template-columns:40px 1fr auto auto auto;gap:6px;}
-  .orders-table{display:block;overflow-x:auto;}
+
+  /* Linha de produto: emoji ocupa 2 linhas, nome em cima, botões embaixo */
+  .admin-prod-row{
+    grid-template-columns:36px 1fr auto auto;
+    grid-template-rows:auto auto;
+    row-gap:8px;
+    column-gap:6px;
+  }
+  .admin-prod-emoji{grid-column:1;grid-row:1/3;align-self:center;}
+  .admin-prod-row>div:nth-child(2){grid-column:2/-1;grid-row:1;}
+  .admin-prod-row>:nth-child(3){grid-column:2;grid-row:2;justify-self:start;}
+  .admin-prod-row>:nth-child(4){grid-column:3;grid-row:2;}
+  .admin-prod-row>:nth-child(5){grid-column:4;grid-row:2;}
+  .admin-edit-btn,.admin-del-btn,.admin-restore-btn{padding:5px 10px;font-size:11px;}
+
+  /* Tabela de pedidos: scroll horizontal suave */
+  .orders-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  .orders-table{display:table;min-width:560px;}
+  .orders-table th,.orders-table td{white-space:nowrap;}
+
   .status-update-form{flex-direction:column;}
 
   /* Rodapé */
@@ -1801,6 +1836,7 @@ async function renderAdminOrders() {
     const statusBadge = s => `<span class="status-badge sb-${s}">${{ received: 'Recebido', pending: 'Pendente', confirmed: 'Confirmado', dispatched: 'Despachado', in_transit: 'Em trânsito', delivered: 'Entregue', rejected: 'Recusado' }[s] || s}</span>`;
     const payBadge = s => `<span class="pay-badge pb-${s}">${{ approved: 'Pago', pending: 'Aguardando', rejected: 'Recusado' }[s] || s}</span>`;
     body.innerHTML = `<p style="font-size:12px;color:var(--muted);margin-bottom:16px">${orders.length} pedido(s) encontrado(s)</p>
+    <div class="orders-table-wrap">
     <table class="orders-table">
       <thead><tr>
         <th>Pedido</th><th>Cliente</th><th>Total</th>
@@ -1815,7 +1851,8 @@ async function renderAdminOrders() {
         <td style="color:var(--muted)">${new Date(o.created_at).toLocaleDateString('pt-BR')}</td>
         <td><button class="admin-edit-btn" onclick="openOrderDetail('${o.order_number}')">Abrir</button></td>
       </tr>`).join('')}</tbody>
-    </table>`;
+    </table>
+    </div>`;
   } catch (err) {
     body.innerHTML = `<p style="color:#A32D2D;padding:16px 0">Erro ao carregar pedidos: ${esc(err.message)}</p>`;
   }
