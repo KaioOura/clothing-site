@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Off Clothing Bath</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #F7F4F1;
+      --white: #FFFFFF;
+      --text: #111111;
+      --text-off: #888;
+      --border: #E0DAD4;
+      --header-h: 56px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100dvh; overscroll-behavior: none; }
+
+    /* HEADER */
+    .header { position: fixed; top: 0; left: 0; right: 0; height: var(--header-h); background: var(--bg); border-bottom: 1px solid var(--border); display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0 16px; z-index: 100; }
+    .header-logo { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 15px; letter-spacing: .18em; text-transform: uppercase; text-align: center; color: var(--text); white-space: nowrap; }
+    .header-btn { background: none; border: none; cursor: pointer; padding: 8px; color: var(--text); display: flex; align-items: center; justify-content: center; position: relative; }
+    .header-right { display: flex; justify-content: flex-end; }
+    .cart-count { position: absolute; top: 4px; right: 4px; width: 16px; height: 16px; background: var(--text); color: #fff; border-radius: 50%; font-size: 9px; font-weight: 600; display: none; align-items: center; justify-content: center; }
+
+    /* SCREENS */
+    .screen { display: none; padding-top: var(--header-h); min-height: 100dvh; }
+    .screen.active { display: block; }
+
+    /* SECTIONS */
+    .section { padding: 28px 0 4px; scroll-margin-top: var(--header-h); }
+    .section-header { display: flex; align-items: baseline; justify-content: space-between; padding: 0 20px 14px; }
+    .section-title { font-family: 'Barlow Condensed', sans-serif; font-size: 21px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+    .section-count { font-size: 11px; color: var(--text-off); letter-spacing: .04em; }
+
+    /* CAROUSEL */
+    .carousel { display: flex; gap: 12px; overflow-x: scroll; scroll-snap-type: x mandatory; padding: 0 20px 24px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+    .carousel::-webkit-scrollbar { display: none; }
+
+    /* PRODUCT CARD */
+    .product-card { flex: 0 0 72vw; scroll-snap-align: start; cursor: pointer; background: var(--white); border-radius: 14px; overflow: hidden; border: 1px solid var(--border); transition: transform .15s; -webkit-user-select: none; user-select: none; }
+    .product-card:active { transform: scale(.97); }
+    .card-image-wrap { position: relative; width: 100%; aspect-ratio: 4/5; background: #EDE8E3; overflow: hidden; }
+    .card-image-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .card-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 52px; }
+    .card-tag { position: absolute; top: 10px; left: 10px; background: var(--text); color: #fff; font-size: 10px; font-weight: 600; letter-spacing: .08em; padding: 3px 9px; border-radius: 30px; text-transform: uppercase; }
+    .card-sold-overlay { position: absolute; inset: 0; background: rgba(247,244,241,.75); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; }
+    .card-body { padding: 12px 14px 16px; }
+    .card-name { font-weight: 600; font-size: 13px; line-height: 1.3; margin-bottom: 2px; }
+    .card-subtitle { font-size: 11px; color: var(--text-off); margin-bottom: 10px; }
+    .card-price-row { display: flex; align-items: baseline; gap: 7px; }
+    .card-price { font-family: 'Barlow Condensed', sans-serif; font-size: 19px; font-weight: 700; }
+    .card-old-price { font-size: 12px; color: var(--text-off); text-decoration: line-through; }
+
+    /* PRODUCT DETAIL */
+    .detail-back-bar { position: fixed; top: 0; left: 0; right: 0; height: var(--header-h); display: flex; align-items: center; padding: 0 16px; z-index: 100; pointer-events: none; }
+    .detail-back-btn { pointer-events: all; background: rgba(247,244,241,.88); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid var(--border); border-radius: 30px; padding: 7px 16px; font-size: 13px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; color: var(--text); }
+    .detail-image-area { width: 100%; aspect-ratio: 4/5; background: #EDE8E3; overflow: hidden; }
+    .detail-image-area img { width: 100%; height: 100%; object-fit: cover; display: block; transition: opacity .2s; }
+    .detail-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 72px; }
+    .detail-dots { display: flex; justify-content: center; gap: 6px; padding: 14px 0 0; }
+    .detail-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); transition: background .2s; cursor: pointer; }
+    .detail-dot.active { background: var(--text); }
+    .detail-body { padding: 22px 20px 40px; }
+    .detail-tag { display: inline-block; background: var(--text); color: #fff; font-size: 10px; font-weight: 600; letter-spacing: .08em; padding: 3px 10px; border-radius: 30px; text-transform: uppercase; margin-bottom: 14px; }
+    .detail-name { font-family: 'Barlow Condensed', sans-serif; font-size: 30px; font-weight: 700; letter-spacing: .02em; line-height: 1.05; margin-bottom: 4px; }
+    .detail-subtitle { font-size: 13px; color: var(--text-off); margin-bottom: 18px; }
+    .detail-price-row { display: flex; align-items: baseline; gap: 10px; margin-bottom: 28px; }
+    .detail-price { font-family: 'Barlow Condensed', sans-serif; font-size: 34px; font-weight: 700; }
+    .detail-old-price { font-size: 16px; color: var(--text-off); text-decoration: line-through; }
+    .detail-label { font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--text-off); margin-bottom: 6px; }
+    .detail-size { font-size: 15px; font-weight: 500; letter-spacing: .04em; margin-bottom: 28px; }
+    .detail-description { font-size: 14px; line-height: 1.65; color: #555; }
+    .detail-cta { position: sticky; bottom: 0; background: var(--bg); border-top: 1px solid var(--border); padding: 14px 20px; padding-bottom: calc(14px + env(safe-area-inset-bottom)); }
+    .btn-add { width: 100%; background: var(--text); color: #fff; border: none; border-radius: 30px; padding: 17px; font-size: 14px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; cursor: pointer; transition: opacity .15s; }
+    .btn-add:active { opacity: .8; }
+    .btn-add:disabled { background: #ccc; cursor: default; }
+
+    /* DRAWER */
+    .drawer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.38); z-index: 200; opacity: 0; pointer-events: none; transition: opacity .25s; }
+    .drawer-overlay.open { opacity: 1; pointer-events: all; }
+    .drawer { position: fixed; top: 0; left: 0; bottom: 0; width: 72vw; max-width: 290px; background: var(--white); z-index: 201; transform: translateX(-100%); transition: transform .28s cubic-bezier(.4,0,.2,1); display: flex; flex-direction: column; }
+    .drawer.open { transform: translateX(0); }
+    .drawer-top { padding: 44px 24px 20px; border-bottom: 1px solid var(--border); }
+    .drawer-brand { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 13px; letter-spacing: .2em; text-transform: uppercase; color: var(--text-off); }
+    .drawer-nav { flex: 1; padding: 8px 0; overflow-y: auto; }
+    .drawer-item { display: flex; align-items: center; gap: 16px; padding: 15px 24px; font-size: 15px; font-weight: 500; cursor: pointer; color: var(--text); border: none; background: none; width: 100%; text-align: left; transition: background .1s; }
+    .drawer-item:active { background: var(--bg); }
+    .drawer-icon { font-size: 16px; width: 22px; text-align: center; color: var(--text-off); }
+    .drawer-footer { padding: 16px 24px; padding-bottom: calc(16px + env(safe-area-inset-bottom)); border-top: 1px solid var(--border); }
+    .drawer-admin-btn { display: flex; align-items: center; gap: 12px; font-size: 12px; color: var(--text-off); cursor: pointer; background: none; border: none; width: 100%; text-align: left; padding: 6px 0; }
+
+    /* SKELETON */
+    .skeleton-card { flex: 0 0 72vw; border-radius: 14px; overflow: hidden; border: 1px solid var(--border); background: var(--white); }
+    .skeleton { background: linear-gradient(90deg, #EDE8E3 25%, #E4DDD8 50%, #EDE8E3 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    .skeleton-img { width: 100%; aspect-ratio: 4/5; }
+    .skeleton-lines { padding: 12px 14px 16px; display: flex; flex-direction: column; gap: 7px; }
+    .skeleton-line { height: 11px; border-radius: 4px; }
+
+    /* TOAST */
+    .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(70px); background: var(--text); color: #fff; padding: 10px 20px; border-radius: 30px; font-size: 13px; font-weight: 500; z-index: 500; transition: transform .28s cubic-bezier(.4,0,.2,1); white-space: nowrap; max-width: 90vw; overflow: hidden; text-overflow: ellipsis; }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    .empty { padding: 48px 24px; text-align: center; color: var(--text-off); font-size: 14px; width: 100%; }
+
+    /* HERO */
+    .hero {
+      background: #111;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 32px 28px 36px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-visual {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 120px;
+      opacity: .10;
+      pointer-events: none;
+      user-select: none;
+    }
+    .hero-eyebrow {
+      font-size: 10px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.45);
+      font-weight: 500;
+      margin-bottom: 16px;
+    }
+    .hero-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 48px;
+      line-height: .92;
+      color: #fff;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: -.01em;
+      margin-bottom: 16px;
+    }
+    .hero-title em { color: rgba(255,255,255,.4); font-style: normal; }
+    .hero-sub {
+      font-size: 12px;
+      color: rgba(255,255,255,.45);
+      line-height: 1.65;
+      margin-bottom: 28px;
+      max-width: 260px;
+    }
+    .hero-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #fff;
+      color: #111;
+      border: none;
+      border-radius: 30px;
+      padding: 12px 22px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      width: fit-content;
+      transition: opacity .15s;
+    }
+    .hero-btn:active { opacity: .8; }
+    .orders-body { padding: 32px 20px; }
+    .orders-title { font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; margin-bottom: 24px; }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <button class="header-btn" onclick="openDrawer()" aria-label="Menu">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+      <line x1="3" y1="6" x2="21" y2="6"/>
+      <line x1="3" y1="12" x2="21" y2="12"/>
+      <line x1="3" y1="18" x2="21" y2="18"/>
+    </svg>
+  </button>
+  <div class="header-logo">Off Clothing Bath</div>
+  <div class="header-right">
+    <button class="header-btn" onclick="goToCart()" aria-label="Sacola">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+        <line x1="3" y1="6" x2="21" y2="6"/>
+        <path d="M16 10a4 4 0 01-8 0"/>
+      </svg>
+      <span class="cart-count" id="cart-count">0</span>
+    </button>
+  </div>
+</header>
+
+<!-- HOME -->
+<div class="screen active" id="screen-home">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-visual">&#128248;</div>
+    <p class="hero-eyebrow">Ver&atilde;o &mdash; Cole&ccedil;&atilde;o 2025</p>
+    <h1 class="hero-title">Vista-se<br>com <em>inten&ccedil;&atilde;o.</em></h1>
+    <p class="hero-sub">Pe&ccedil;as que duram, estilos que contam. Moda consciente para quem n&atilde;o abre m&atilde;o de eleg&acirc;ncia.</p>
+    <button class="hero-btn" onclick="jumpTo('carousel-new')">Ver novidades &rarr;</button>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-title">Novidades</span>
+      <span class="section-count" id="count-new"></span>
+    </div>
+    <div class="carousel" id="carousel-new">
+      <div class="skeleton-card"><div class="skeleton skeleton-img"></div><div class="skeleton-lines"><div class="skeleton skeleton-line" style="width:65%"></div><div class="skeleton skeleton-line" style="width:42%"></div></div></div>
+      <div class="skeleton-card"><div class="skeleton skeleton-img"></div><div class="skeleton-lines"><div class="skeleton skeleton-line" style="width:58%"></div><div class="skeleton skeleton-line" style="width:38%"></div></div></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-header">
+      <span class="section-title">Em Promo&ccedil;&atilde;o</span>
+      <span class="section-count" id="count-sale"></span>
+    </div>
+    <div class="carousel" id="carousel-sale">
+      <div class="skeleton-card"><div class="skeleton skeleton-img"></div><div class="skeleton-lines"><div class="skeleton skeleton-line" style="width:65%"></div><div class="skeleton skeleton-line" style="width:42%"></div></div></div>
+      <div class="skeleton-card"><div class="skeleton skeleton-img"></div><div class="skeleton-lines"><div class="skeleton skeleton-line" style="width:58%"></div><div class="skeleton skeleton-line" style="width:38%"></div></div></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-header">
+      <span class="section-title">Todos</span>
+      <span class="section-count" id="count-all"></span>
+    </div>
+    <div class="carousel" id="carousel-all">
+      <div class="skeleton-card"><div class="skeleton skeleton-img"></div><div class="skeleton-lines"><div class="skeleton skeleton-line" style="width:65%"></div><div class="skeleton skeleton-line" style="width:42%"></div></div></div>
+      <div class="skeleton-card"><div class="skeleton skeleton-img"></div><div class="skeleton-lines"><div class="skeleton skeleton-line" style="width:58%"></div><div class="skeleton skeleton-line" style="width:38%"></div></div></div>
+    </div>
+  </div>
+  <div style="height:48px"></div>
+</div>
+
+<!-- PRODUCT DETAIL -->
+<div class="screen" id="screen-detail">
+  <div class="detail-back-bar">
+    <button class="detail-back-btn" onclick="goBack()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      Voltar
+    </button>
+  </div>
+  <div class="detail-image-area" id="detail-image-area"></div>
+  <div class="detail-dots" id="detail-dots"></div>
+  <div class="detail-body" id="detail-body"></div>
+  <div class="detail-cta">
+    <button class="btn-add" id="btn-add">Adicionar &agrave; sacola</button>
+  </div>
+</div>
+
+<!-- ORDERS -->
+<div class="screen" id="screen-orders">
+  <div class="orders-body">
+    <div class="orders-title">Meus Pedidos</div>
+    <p style="font-size:14px;color:var(--text-off);line-height:1.6">Seus pedidos aparecer&atilde;o aqui ap&oacute;s a finaliza&ccedil;&atilde;o da compra.</p>
+  </div>
+</div>
+
+<!-- DRAWER -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-top"><div class="drawer-brand">Off Clothing Bath</div></div>
+  <nav class="drawer-nav">
+    <button class="drawer-item" onclick="jumpTo('carousel-new')"><span class="drawer-icon">&#10022;</span> Novidades</button>
+    <button class="drawer-item" onclick="jumpTo('carousel-sale')"><span class="drawer-icon">%</span> Em Promo&ccedil;&atilde;o</button>
+    <button class="drawer-item" onclick="jumpTo('carousel-all')"><span class="drawer-icon">&#9632;</span> Todos os Produtos</button>
+    <button class="drawer-item" onclick="go('orders')"><span class="drawer-icon">&#9203;</span> Meus Pedidos</button>
+  </nav>
+  <div class="drawer-footer">
+    <button class="drawer-admin-btn" onclick="closeDrawer();showToast('Admin disponivel na versao completa')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>
+      &Aacute;rea Admin
+    </button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var API = 'https://clothing-site-production.up.railway.app';
+var products = [], cart = [], navHistory = [], current = 'home';
+var currentProduct = null, imgIndex = 0;
+
+function fetchProducts() {
+  fetch(API + '/api/products')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      products = data.filter(function(p) { return p.active !== false; });
+      renderAll();
+    })
+    .catch(function() { showToast('Erro ao carregar produtos'); });
+}
+
+function renderAll() {
+  var news  = products.filter(function(p) { return p.is_new; });
+  var sales = products.filter(function(p) { return p.is_sale; });
+  render('carousel-new',  news,     'count-new');
+  render('carousel-sale', sales,    'count-sale');
+  render('carousel-all',  products, 'count-all');
+}
+
+function render(cid, items, countId) {
+  var el = document.getElementById(cid);
+  var n  = items.length;
+  document.getElementById(countId).textContent = n ? n + (n === 1 ? ' item' : ' itens') : '';
+  if (!n) { el.innerHTML = '<div class="empty">Nenhum produto</div>'; return; }
+  el.innerHTML = items.map(cardHTML).join('');
+}
+
+function firstImage(p) {
+  if (!p.images) return null;
+  var list = p.images.split('\n').map(function(s) { return s.trim(); }).filter(Boolean);
+  return list[0] || null;
+}
+
+function fmt(n) { return 'R$ ' + Number(n).toFixed(2).replace('.', ','); }
+
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function cardHTML(p) {
+  var img   = firstImage(p);
+  var imgEl = img
+    ? '<img src="' + esc(img) + '" alt="' + esc(p.name) + '" loading="lazy">'
+    : '<div class="card-placeholder">' + (p.emoji || '&#128248;') + '</div>';
+  var tag  = p.tag  ? '<span class="card-tag">' + esc(p.tag) + '</span>' : '';
+  var sold = p.stock === 0 ? '<div class="card-sold-overlay">Esgotado</div>' : '';
+  var oldP = p.old_price ? '<span class="card-old-price">' + fmt(p.old_price) + '</span>' : '';
+  return '<div class="product-card" onclick="openProduct(' + p.id + ')">'
+    + '<div class="card-image-wrap">' + imgEl + tag + sold + '</div>'
+    + '<div class="card-body">'
+    + '<div class="card-name">' + esc(p.name) + '</div>'
+    + '<div class="card-subtitle">' + esc(p.subtitle || '') + '</div>'
+    + '<div class="card-price-row"><span class="card-price">' + fmt(p.price) + '</span>' + oldP + '</div>'
+    + '</div></div>';
+}
+
+function openProduct(id) {
+  currentProduct = null;
+  for (var i = 0; i < products.length; i++) { if (products[i].id === id) { currentProduct = products[i]; break; } }
+  if (!currentProduct) return;
+  var p = currentProduct;
+  var imgs = p.images ? p.images.split('\n').map(function(s) { return s.trim(); }).filter(Boolean) : [];
+  imgIndex = 0;
+
+  var area = document.getElementById('detail-image-area');
+  area.innerHTML = imgs.length
+    ? '<img id="detail-img" src="' + esc(imgs[0]) + '" alt="' + esc(p.name) + '">'
+    : '<div class="detail-placeholder">' + (p.emoji || '&#128248;') + '</div>';
+
+  var dotsEl = document.getElementById('detail-dots');
+  if (imgs.length > 1) {
+    var dotHTML = '';
+    for (var d = 0; d < imgs.length; d++) {
+      dotHTML += '<div class="detail-dot' + (d === 0 ? ' active' : '') + '" onclick="switchImg(' + d + ')"></div>';
+    }
+    dotsEl.innerHTML = dotHTML;
+    dotsEl.style.display = 'flex';
+  } else {
+    dotsEl.style.display = 'none';
+  }
+
+  var tagHTML  = p.tag ? '<div class="detail-tag">' + esc(p.tag) + '</div>' : '';
+  var oldPHTML = p.old_price ? '<span class="detail-old-price">' + fmt(p.old_price) + '</span>' : '';
+  var sizeText = p.sizes ? p.sizes.replace(/,/g, '  &middot;  ') : 'Tamanho &uacute;nico';
+  var descHTML = p.description ? '<p class="detail-description">' + esc(p.description) + '</p>' : '';
+
+  document.getElementById('detail-body').innerHTML = tagHTML
+    + '<h1 class="detail-name">' + esc(p.name) + '</h1>'
+    + '<p class="detail-subtitle">' + esc(p.subtitle || '') + '</p>'
+    + '<div class="detail-price-row"><span class="detail-price">' + fmt(p.price) + '</span>' + oldPHTML + '</div>'
+    + '<div class="detail-label">Tamanho</div>'
+    + '<div class="detail-size">' + sizeText + '</div>'
+    + descHTML;
+
+  var btn = document.getElementById('btn-add');
+  if (p.stock === 0) {
+    btn.textContent = 'Esgotado';
+    btn.disabled = true;
+  } else {
+    btn.textContent = 'Adicionar \u00e0 sacola';
+    btn.disabled = false;
+    btn.onclick = (function(prod) { return function() { addToCart(prod); }; })(p);
+  }
+
+  if (imgs.length > 1) {
+    var sx = 0;
+    area.addEventListener('touchstart', function(e) { sx = e.touches[0].clientX; }, { passive: true });
+    area.addEventListener('touchend', function(e) {
+      var dx = e.changedTouches[0].clientX - sx;
+      if (Math.abs(dx) < 40) return;
+      if (dx < 0 && imgIndex < imgs.length - 1) switchImg(imgIndex + 1);
+      if (dx > 0 && imgIndex > 0)               switchImg(imgIndex - 1);
+    }, { passive: true });
+  }
+
+  go('detail');
+  window.scrollTo(0, 0);
+}
+
+function switchImg(idx) {
+  if (!currentProduct) return;
+  var imgs = currentProduct.images
+    ? currentProduct.images.split('\n').map(function(s) { return s.trim(); }).filter(Boolean)
+    : [];
+  var el = document.getElementById('detail-img');
+  if (!el || !imgs[idx]) return;
+  el.style.opacity = '0';
+  setTimeout(function() { el.src = imgs[idx]; el.style.opacity = '1'; }, 150);
+  imgIndex = idx;
+  var dots = document.querySelectorAll('.detail-dot');
+  for (var i = 0; i < dots.length; i++) { dots[i].classList.toggle('active', i === idx); }
+}
+
+function addToCart(p) {
+  var item = null;
+  for (var i = 0; i < cart.length; i++) { if (cart[i].id === p.id) { item = cart[i]; break; } }
+  if (item) { item.qty++; } else { cart.push({ id: p.id, product: p, qty: 1 }); }
+  updateCartBadge();
+  showToast(p.name + ' adicionado \u00e0 sacola');
+}
+
+function updateCartBadge() {
+  var n = 0;
+  for (var i = 0; i < cart.length; i++) { n += cart[i].qty; }
+  var el = document.getElementById('cart-count');
+  el.textContent = n;
+  el.style.display = n > 0 ? 'flex' : 'none';
+}
+
+function goToCart() { showToast('Sacola dispon\u00edvel na vers\u00e3o completa'); }
+
+function go(screen) {
+  closeDrawer();
+  var screens = document.querySelectorAll('.screen');
+  for (var i = 0; i < screens.length; i++) { screens[i].classList.remove('active'); }
+  document.getElementById('screen-' + screen).classList.add('active');
+  if (screen !== current) navHistory.push(current);
+  current = screen;
+  window.scrollTo(0, 0);
+}
+
+function goBack() {
+  var prev = navHistory.length ? navHistory.pop() : 'home';
+  var screens = document.querySelectorAll('.screen');
+  for (var i = 0; i < screens.length; i++) { screens[i].classList.remove('active'); }
+  document.getElementById('screen-' + prev).classList.add('active');
+  current = prev;
+}
+
+function jumpTo(carouselId) {
+  closeDrawer();
+  if (current !== 'home') {
+    go('home');
+    setTimeout(function() { scrollToSection(carouselId); }, 80);
+  } else {
+    scrollToSection(carouselId);
+  }
+}
+
+function scrollToSection(id) {
+  var el = document.getElementById(id);
+  if (el) { el.closest('.section').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+}
+
+function openDrawer() {
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('drawer-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDrawer() {
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('drawer-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+var toastTimer;
+function showToast(msg) {
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function() { el.classList.remove('show'); }, 2800);
+}
+
+fetchProducts();
+</script>
+</body>
+</html>

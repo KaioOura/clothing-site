@@ -9,7 +9,8 @@
       "Bash(cp \"c:/Users/Kaio/Desktop/Claude Code Site/db.js\" \"c:/Users/Kaio/Desktop/Claude Code Site Backend/db.js\")",
       "Bash(cp \"c:/Users/Kaio/Desktop/Claude Code Site/package.json\" \"c:/Users/Kaio/Desktop/Claude Code Site Backend/package.json\")",
       "Bash(cp \"c:/Users/Kaio/Desktop/Claude Code Site/railway.json\" \"c:/Users/Kaio/Desktop/Claude Code Site Backend/railway.json\")",
-      "mcp__Claude_Preview__preview_start"
+      "mcp__Claude_Preview__preview_start",
+      "Bash(npx serve *)"
     ]
   }
 }
